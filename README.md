@@ -1,0 +1,1 @@
+# etimad-shop
