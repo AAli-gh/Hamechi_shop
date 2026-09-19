@@ -1,0 +1,31 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--enable-source-maps", "./dist/index.mjs"],
+      "cwd": "artifacts/api-server",
+      "port": 8090,
+      "env": {
+        "PORT": "8090",
+        "NODE_ENV": "development",
+        "DEV_AUTH": "true",
+        "DATABASE_URL": "postgresql://postgres:postgres@127.0.0.1:5433/postgres?sslmode=disable"
+      }
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["./node_modules/vite/bin/vite.js", "--config", "vite.config.ts"],
+      "cwd": "artifacts/koodakland",
+      "port": 22903,
+      "env": {
+        "PORT": "22903",
+        "BASE_PATH": "/",
+        "VITE_DEV_AUTH": "true",
+        "API_PROXY_TARGET": "http://127.0.0.1:8090"
+      }
+    }
+  ]
+}

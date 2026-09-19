@@ -1,0 +1,53 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import productsRouter from "./products";
+import categoriesRouter from "./categories";
+import searchRouter from "./search";
+import cartRouter from "./cart";
+import wishlistRouter from "./wishlist";
+import ordersRouter from "./orders";
+import reviewsRouter from "./reviews";
+import usersRouter from "./users";
+import blogRouter from "./blog";
+import bannersRouter from "./banners";
+import discountsRouter from "./discounts";
+import adminRouter from "./admin";
+import shippingRouter from "./shipping";
+import uploadRouter from "./upload";
+import smsRouter from "./sms";
+import inventoryRouter from "./inventory";
+import newsletterRouter from "./newsletter";
+import bestSellersRouter from "./best-sellers";
+import sitemapRouter from "./sitemap";
+import stockNotificationsRouter from "./stock-notifications";
+import reportsRouter from "./reports";
+import wishlistsRouter from "./wishlists";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+// Before productsRouter, whose /products/:id would otherwise match "best-sellers".
+router.use(bestSellersRouter);
+router.use(productsRouter);
+router.use(categoriesRouter);
+router.use(searchRouter);
+router.use(cartRouter);
+router.use(wishlistRouter);
+router.use(wishlistsRouter);
+router.use(ordersRouter);
+router.use(reviewsRouter);
+router.use(usersRouter);
+router.use(blogRouter);
+router.use(bannersRouter);
+router.use(discountsRouter);
+router.use(adminRouter);
+router.use(shippingRouter);
+router.use(uploadRouter);
+router.use(smsRouter);
+router.use(inventoryRouter);
+router.use(newsletterRouter);
+router.use(sitemapRouter);
+router.use(stockNotificationsRouter);
+router.use(reportsRouter);
+
+export default router;

@@ -1,0 +1,5 @@
+# The app is built and deployed on Linux; keep LF endings on every platform.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
