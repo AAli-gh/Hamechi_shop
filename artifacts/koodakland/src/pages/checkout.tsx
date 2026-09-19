@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useGetCart, useCreateOrder, useListShippingMethods, useValidateDiscount, type ShippingMethod } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiErrorMessage } from "@/lib/utils";
+import { IRAN_PROVINCES } from "@/lib/iran-provinces";
 import { useCartSession } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -110,18 +111,42 @@ export default function Checkout() {
               <h2 className="font-bold text-lg mb-5 flex items-center gap-2"><Shield className="w-5 h-5 text-primary" /> اطلاعات تحویل</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { key: "name", label: "نام و نام خانوادگی", placeholder: "نام کامل" },
-                  { key: "phone", label: "شماره موبایل", placeholder: "۰۹۱۲۳۴۵۶۷۸۹" },
-                  { key: "province", label: "استان", placeholder: "تهران" },
-                  { key: "city", label: "شهر", placeholder: "تهران" },
-                  { key: "postalCode", label: "کد پستی", placeholder: "۱۲۳۴۵۶۷۸۹۰" },
-                ].map(({ key, label, placeholder }) => (
-                  <div key={key} className={key === "postalCode" ? "" : ""}>
-                    <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{label}</label>
-                    <input value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder}
+                  { key: "name", label: "نام و نام خانوادگی", placeholder: "نام کامل", autoComplete: "name" },
+                  { key: "phone", label: "شماره موبایل", placeholder: "۰۹۱۲۳۴۵۶۷۸۹", autoComplete: "tel", inputMode: "tel" as const },
+                ].map(({ key, label, placeholder, autoComplete, inputMode }) => (
+                  <div key={key}>
+                    <label htmlFor={`checkout-${key}`} className="text-sm font-medium text-muted-foreground mb-1.5 block">{label}</label>
+                    <input id={`checkout-${key}`} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder}
+                      autoComplete={autoComplete} inputMode={inputMode}
                       className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
                   </div>
                 ))}
+                <div>
+                  <label htmlFor="checkout-province" className="text-sm font-medium text-muted-foreground mb-1.5 block">استان</label>
+                  <select id="checkout-province" value={form.province}
+                    onChange={e => setForm(f => ({ ...f, province: e.target.value, city: "" }))}
+                    className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <option value="">انتخاب استان</option>
+                    {IRAN_PROVINCES.map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="checkout-city" className="text-sm font-medium text-muted-foreground mb-1.5 block">شهر</label>
+                  {/* Suggestions only: any city name can be typed. */}
+                  <input id="checkout-city" list="checkout-city-options" value={form.city}
+                    onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                    placeholder={form.province ? "نام شهر" : "ابتدا استان را انتخاب کنید"} disabled={!form.province} autoComplete="address-level2"
+                    className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60" />
+                  <datalist id="checkout-city-options">
+                    {IRAN_PROVINCES.find((p) => p.name === form.province)?.cities.map((c) => <option key={c} value={c} />)}
+                  </datalist>
+                </div>
+                <div>
+                  <label htmlFor="checkout-postalCode" className="text-sm font-medium text-muted-foreground mb-1.5 block">کد پستی</label>
+                  <input id="checkout-postalCode" value={form.postalCode} onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))} placeholder="۱۲۳۴۵۶۷۸۹۰"
+                    autoComplete="postal-code" inputMode="numeric"
+                    className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
                 <div className="sm:col-span-2">
                   <label className="text-sm font-medium text-muted-foreground mb-1.5 block">آدرس کامل</label>
                   <textarea value={form.street} onChange={e => setForm(f => ({ ...f, street: e.target.value }))} placeholder="خیابان، کوچه، پلاک..." rows={2}
