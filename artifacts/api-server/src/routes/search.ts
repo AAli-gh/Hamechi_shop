@@ -1,22 +1,24 @@
 import { Router, type IRouter } from "express";
-import { ilike, or, sql, eq } from "drizzle-orm";
+import { sql, eq, desc } from "drizzle-orm";
 import { db, productsTable, categoriesTable } from "@workspace/db";
 import { enrichProducts } from "../lib/products";
+import { productSearchCondition, textSearchCondition } from "../lib/search";
 
 const router: IRouter = Router();
 
 router.get("/search", async (req, res): Promise<void> => {
-  const q = String(req.query.q || "").trim();
+  const q = String(req.query.q || "").trim().slice(0, 100);
   const limit = Math.min(Math.max(parseInt(String(req.query.limit || "6"), 10) || 6, 1), 24);
-  if (!q) { res.json({ products: [], categories: [], total: 0 }); return; }
+  const productMatch = productSearchCondition(q);
+  const categoryMatch = textSearchCondition(categoriesTable.nameFa, q);
+  if (!productMatch || !categoryMatch) { res.json({ products: [], categories: [], total: 0 }); return; }
 
   const products = await db.select().from(productsTable)
-    .where(or(ilike(productsTable.nameFa, `%${q}%`), ilike(productsTable.name, `%${q}%`), ilike(productsTable.brand, `%${q}%`)))
+    .where(productMatch)
+    .orderBy(desc(sql`${productsTable.stock} > 0`), desc(productsTable.isFeatured), desc(productsTable.createdAt))
     .limit(limit);
 
-  const cats = await db.select().from(categoriesTable)
-    .where(or(ilike(categoriesTable.nameFa, `%${q}%`), ilike(categoriesTable.name, `%${q}%`)))
-    .limit(3);
+  const cats = await db.select().from(categoriesTable).where(categoryMatch).limit(3);
 
   const enrichedProducts = await enrichProducts(products);
 

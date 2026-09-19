@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, sql, desc, asc, inArray } from "drizzle-orm";
 import { db, productsTable, productVariantsTable, cartItemsTable, categoriesTable } from "@workspace/db";
 import { enrichProduct, enrichProducts, syncProductStock } from "../lib/products";
+import { productSearchCondition } from "../lib/search";
 import {
   ListProductsQueryParams,
   SetProductVariantsBody,
@@ -23,9 +24,12 @@ router.get("/products", async (req, res): Promise<void> => {
     return;
   }
 
-  const { category, minPrice, maxPrice, sort, page = 1, limit = 12, inStock, featured, flashSale, ageGroup } = params.data;
+  const { q, category, minPrice, maxPrice, sort, page = 1, inStock, featured, flashSale, ageGroup } = params.data;
+  const limit = Math.min(Math.max(Number(params.data.limit ?? 12), 1), 100);
 
   const conditions = [];
+  const searchMatch = q ? productSearchCondition(q) : undefined;
+  if (searchMatch) conditions.push(searchMatch);
   if (category) {
     const [cat] = await db.select({ id: categoriesTable.id }).from(categoriesTable).where(eq(categoriesTable.slug, category));
     if (cat) conditions.push(eq(productsTable.categoryId, cat.id));

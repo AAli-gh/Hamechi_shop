@@ -17,7 +17,16 @@ export const HealthCheckResponse = zod.object({
 /**
  * @summary List products with filters
  */
+export const listProductsQueryQMax = 100;
+
 export const ListProductsQueryParams = zod.object({
+  q: zod.coerce
+    .string()
+    .max(listProductsQueryQMax)
+    .optional()
+    .describe(
+      "Search text; every word must match (Persian spelling variants are folded)",
+    ),
   category: zod.coerce.string().optional(),
   minPrice: zod.coerce.number().optional(),
   maxPrice: zod.coerce.number().optional(),

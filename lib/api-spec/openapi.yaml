@@ -56,6 +56,10 @@ paths:
       tags: [products]
       summary: List products with filters
       parameters:
+        - name: q
+          in: query
+          description: Search text; every word must match (Persian spelling variants are folded)
+          schema: { type: string, maxLength: 100 }
         - name: category
           in: query
           schema: { type: string }

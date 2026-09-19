@@ -7,6 +7,11 @@
  */
 
 export type ListProductsParams = {
+  /**
+   * Search text; every word must match (Persian spelling variants are folded)
+   * @maxLength 100
+   */
+  q?: string;
   category?: string;
   minPrice?: number;
   maxPrice?: number;

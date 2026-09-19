@@ -44,7 +44,10 @@ export default function Shop() {
   const { data: categoriesData } = useListCategories();
   const categories = categoriesData || [];
 
+  const searchQuery = (params.get("q") || "").trim();
+
   const { data, isLoading } = useListProducts({
+    q: searchQuery || undefined,
     category: selectedCategory || undefined,
     minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
     maxPrice: priceRange[1] < MAX_PRICE ? priceRange[1] : undefined,
@@ -123,7 +126,9 @@ export default function Shop() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-black text-foreground">فروشگاه</h1>
+            <h1 className="text-2xl font-black text-foreground">
+              {searchQuery ? <>نتایج جستجو برای «{searchQuery}»</> : "فروشگاه"}
+            </h1>
             <p className="text-muted-foreground text-sm mt-1">{total.toLocaleString("fa-IR")} محصول یافت شد</p>
           </div>
           <div className="flex items-center gap-3">
