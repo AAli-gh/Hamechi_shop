@@ -45,6 +45,97 @@ export function Header() {
     >
       <div className="container mx-auto px-4 h-16 flex items-center gap-3">
 
+        {/* Mobile hamburger — first in the row, so it sits on the right edge in RTL */}
+        <div className="md:hidden">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 hover:bg-orange-50" aria-label="منو">
+                <Menu style={{ width: 18, height: 18 }} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[80vw] sm:w-[340px] p-0 border-r-0 shadow-2xl" dir="rtl">
+              <div className="flex flex-col h-full" style={{ background: "rgba(255,248,252,0.98)" }}>
+                {/* Mobile menu header */}
+                <div className="flex items-center gap-3 p-5 border-b border-orange-100">
+                  <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+                    <span className="text-primary-foreground text-sm font-black">ب</span>
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-base text-primary">بازارچه</h2>
+                    <p className="text-xs text-muted-foreground">فروشگاه اینترنتی همه‌چیز</p>
+                  </div>
+                </div>
+
+                {/* Mobile search inside sheet */}
+                <div className="px-4 py-3 border-b border-orange-50">
+                  <div
+                    className="flex items-center gap-2 px-4 h-10 rounded-xl ring-1 ring-orange-100"
+                    style={{ background: "rgba(255,255,255,0.8)" }}
+                  >
+                    <Search className="w-4 h-4 text-orange-300 flex-shrink-0" />
+                    <Link
+                      href="/shop"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 text-sm text-orange-300"
+                    >
+                      جستجو در بازارچه...
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Nav links */}
+                <div className="flex-1 overflow-y-auto p-4">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2 mb-2">منو اصلی</p>
+                  <nav className="flex flex-col gap-1 mb-6">
+                    {[
+                      { href: "/", label: "خانه" },
+                      { href: "/shop", label: "فروشگاه" },
+                      { href: "/blog", label: "وبلاگ" },
+                      { href: "/about", label: "درباره ما" },
+                      { href: "/contact", label: "تماس با ما" },
+                      { href: "/wishlist", label: "علاقه‌مندی‌ها" },
+                      { href: user ? "/profile" : "/login", label: user ? "پروفایل" : "ورود / ثبت‌نام" },
+                      ...(user && (user.role === "admin" || user.role === "manager") ? [{ href: "/admin", label: "پنل مدیریت" }] : []),
+                    ].map(({ href, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+                          location === href
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground hover:bg-orange-50"
+                        }`}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {categories.length > 0 && (
+                    <>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2 mb-2">دسته‌بندی‌ها</p>
+                      <nav className="flex flex-col gap-1">
+                        {categories.map((cat) => (
+                          <Link
+                            key={cat.id}
+                            href={`/shop?category=${cat.slug}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="px-4 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-orange-50 hover:text-foreground transition-colors flex items-center gap-2"
+                          >
+                            <span className="text-base">{cat.icon}</span>
+                            {cat.nameFa}
+                          </Link>
+                        ))}
+                      </nav>
+                    </>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm shadow-primary/30">
@@ -117,96 +208,6 @@ export function Header() {
             </Button>
           </Link>
 
-          {/* Mobile hamburger */}
-          <div className="md:hidden">
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 hover:bg-orange-50">
-                  <Menu style={{ width: 18, height: 18 }} />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[80vw] sm:w-[340px] p-0 border-r-0 shadow-2xl" dir="rtl">
-                <div className="flex flex-col h-full" style={{ background: "rgba(255,248,252,0.98)" }}>
-                  {/* Mobile menu header */}
-                  <div className="flex items-center gap-3 p-5 border-b border-orange-100">
-                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-                      <span className="text-primary-foreground text-sm font-black">ب</span>
-                    </div>
-                    <div>
-                      <h2 className="font-bold text-base text-primary">بازارچه</h2>
-                      <p className="text-xs text-muted-foreground">فروشگاه اینترنتی همه‌چیز</p>
-                    </div>
-                  </div>
-
-                  {/* Mobile search inside sheet */}
-                  <div className="px-4 py-3 border-b border-orange-50">
-                    <div
-                      className="flex items-center gap-2 px-4 h-10 rounded-xl ring-1 ring-orange-100"
-                      style={{ background: "rgba(255,255,255,0.8)" }}
-                    >
-                      <Search className="w-4 h-4 text-orange-300 flex-shrink-0" />
-                      <Link
-                        href="/shop"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex-1 text-sm text-orange-300"
-                      >
-                        جستجو در بازارچه...
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Nav links */}
-                  <div className="flex-1 overflow-y-auto p-4">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2 mb-2">منو اصلی</p>
-                    <nav className="flex flex-col gap-1 mb-6">
-                      {[
-                        { href: "/", label: "خانه" },
-                        { href: "/shop", label: "فروشگاه" },
-                        { href: "/blog", label: "وبلاگ" },
-                        { href: "/about", label: "درباره ما" },
-                        { href: "/contact", label: "تماس با ما" },
-                        { href: "/wishlist", label: "علاقه‌مندی‌ها" },
-                        { href: user ? "/profile" : "/login", label: user ? "پروفایل" : "ورود / ثبت‌نام" },
-                        ...(user && (user.role === "admin" || user.role === "manager") ? [{ href: "/admin", label: "پنل مدیریت" }] : []),
-                      ].map(({ href, label }) => (
-                        <Link
-                          key={href}
-                          href={href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
-                            location === href
-                              ? "bg-primary/10 text-primary"
-                              : "text-foreground hover:bg-orange-50"
-                          }`}
-                        >
-                          {label}
-                        </Link>
-                      ))}
-                    </nav>
-
-                    {categories.length > 0 && (
-                      <>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2 mb-2">دسته‌بندی‌ها</p>
-                        <nav className="flex flex-col gap-1">
-                          {categories.map((cat) => (
-                            <Link
-                              key={cat.id}
-                              href={`/shop?category=${cat.slug}`}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="px-4 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-orange-50 hover:text-foreground transition-colors flex items-center gap-2"
-                            >
-                              <span className="text-base">{cat.icon}</span>
-                              {cat.nameFa}
-                            </Link>
-                          ))}
-                        </nav>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
         </div>
       </div>
     </header>
