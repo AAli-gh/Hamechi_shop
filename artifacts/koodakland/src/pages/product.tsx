@@ -10,7 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { useCartSession, useSetCartData } from "@/lib/cart";
 import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck } from "lucide-react";
+import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck, Heart } from "lucide-react";
+import { useWishlist } from "@/lib/wishlist";
 import { StockNotifyForm } from "@/components/product/StockNotifyForm";
 import { VariantPicker, useVariantSelection } from "@/components/product/VariantPicker";
 
@@ -54,6 +55,7 @@ export default function ProductPage() {
   const addToCart = useAddToCart();
   const createReview = useCreateReview();
   const setCart = useSetCartData();
+  const wishlist = useWishlist();
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -138,7 +140,20 @@ export default function ProductPage() {
 
           <div className="flex flex-col gap-5">
             {product.categoryName && <span className="text-sm text-muted-foreground font-medium">{product.categoryName}</span>}
-            <h1 className="text-2xl md:text-3xl font-black text-foreground leading-tight">{product.nameFa}</h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="text-2xl md:text-3xl font-black text-foreground leading-tight">{product.nameFa}</h1>
+              <Button
+                variant="outline"
+                size="icon"
+                className={`shrink-0 rounded-full ${wishlist.isSaved(product.id) ? "text-red-500 border-red-200" : "text-muted-foreground"}`}
+                aria-label={wishlist.isSaved(product.id) ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
+                aria-pressed={wishlist.isSaved(product.id)}
+                disabled={wishlist.isPending}
+                onClick={() => wishlist.toggle(product)}
+              >
+                <Heart className={`w-5 h-5 ${wishlist.isSaved(product.id) ? "fill-current" : ""}`} />
+              </Button>
+            </div>
 
             <div className="flex items-center gap-2">
               <div className="flex text-amber-400">

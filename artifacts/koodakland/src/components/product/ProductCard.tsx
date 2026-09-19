@@ -8,6 +8,7 @@ import { useCartSession, useSetCartData } from "@/lib/cart";
 import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { useAddToCart } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWishlist } from "@/lib/wishlist";
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +18,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const { sessionId } = useCartSession();
   const addToCart = useAddToCart();
   const setCart = useSetCartData();
+  const wishlist = useWishlist();
+  const saved = wishlist.isSaved(product.id);
   const { toast } = useToast();
 
   const hasVariants = product.variants.length > 0;
@@ -96,15 +99,17 @@ export function ProductCard({ product }: ProductCardProps) {
             <Button
               variant="secondary"
               size="icon"
-              className="w-8 h-8 rounded-full shadow-sm bg-white/90 hover:bg-amber-50 hover:text-amber-500 text-slate-400"
+              className={`w-8 h-8 rounded-full shadow-sm bg-white/90 hover:bg-red-50 hover:text-red-500 ${saved ? "text-red-500" : "text-slate-400"}`}
+              aria-label={saved ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
+              aria-pressed={saved}
+              disabled={wishlist.isPending}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Add to wishlist logic
-                toast({ title: "به زودی", description: "این امکان به زودی اضافه می‌شود." });
+                wishlist.toggle(product);
               }}
             >
-              <Heart className="w-4 h-4" />
+              <Heart className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
             </Button>
           </div>
         </div>
