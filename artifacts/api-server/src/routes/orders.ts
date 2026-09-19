@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, and, sql, gte, lt, or, isNull, inArray } from "drizzle-orm";
 import { z } from "zod";
-import { db, ordersTable, orderItemsTable, cartItemsTable, cartsTable, productsTable, discountsTable, shippingMethodsTable } from "@workspace/db";
-import { currentPrice } from "../lib/products";
+import { db, ordersTable, orderItemsTable, cartItemsTable, cartsTable, productsTable, discountsTable, shippingMethodsTable, productVariantsTable } from "@workspace/db";
+import { currentPrice, variantLabel } from "../lib/products";
 import { checkDiscount, findDiscountByCode, shippingCost, toAsciiDigits } from "../lib/pricing";
 import { CreateOrderBody, UpdateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { optionalAuth, requireAdmin, requireAuth } from "../middleware/auth";
@@ -83,13 +83,23 @@ router.post("/orders", optionalAuth, async (req, res): Promise<void> => {
       // not the price it had when it was added to the cart.
       const lines = [];
       for (const ci of cartItems) {
+        // A variant line is limited by the variant's stock; products.stock (their sum) moves with it.
+        let variant: typeof productVariantsTable.$inferSelect | undefined;
+        if (ci.variantId != null) {
+          [variant] = await tx
+            .update(productVariantsTable)
+            .set({ stock: sql`${productVariantsTable.stock} - ${ci.quantity}` })
+            .where(and(eq(productVariantsTable.id, ci.variantId), gte(productVariantsTable.stock, ci.quantity)))
+            .returning();
+          if (!variant) throw new OrderError(409, "یکی از کالاهای سبد موجودی کافی ندارد");
+        }
         const [product] = await tx
           .update(productsTable)
           .set({ stock: sql`${productsTable.stock} - ${ci.quantity}`, updatedAt: new Date() })
           .where(and(eq(productsTable.id, ci.productId), gte(productsTable.stock, ci.quantity)))
           .returning();
         if (!product) throw new OrderError(409, "یکی از کالاهای سبد موجودی کافی ندارد");
-        lines.push({ product, quantity: ci.quantity, price: currentPrice(product) });
+        lines.push({ product, variant, quantity: ci.quantity, price: currentPrice(product, variant) });
       }
 
       const subtotal = lines.reduce((sum, line) => sum + line.price * line.quantity, 0);
@@ -122,9 +132,11 @@ router.post("/orders", optionalAuth, async (req, res): Promise<void> => {
         notes: body.notes ?? null, customerName: body.customerName, customerPhone: body.customerPhone,
       }).returning();
 
-      const orderItems = await tx.insert(orderItemsTable).values(lines.map(({ product, quantity, price }) => ({
+      const orderItems = await tx.insert(orderItemsTable).values(lines.map(({ product, variant, quantity, price }) => ({
         orderId: order.id,
         productId: product.id,
+        variantId: variant?.id ?? null,
+        variantName: variant ? variantLabel(variant.options) : null,
         productName: product.nameFa || product.name || "محصول",
         quantity,
         price: String(price),
@@ -170,6 +182,11 @@ router.patch("/orders/:id", requireAuth, requireAdmin, async (req, res): Promise
     if (parsed.data.status === "cancelled" && current.status !== "cancelled" && current.inventoryReserved) {
       const items = await tx.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, id));
       for (const item of items) {
+        if (item.variantId != null) {
+          await tx.update(productVariantsTable)
+            .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
+            .where(eq(productVariantsTable.id, item.variantId));
+        }
         await tx.update(productsTable)
           .set({ stock: sql`${productsTable.stock} + ${item.quantity}`, updatedAt: new Date() })
           .where(eq(productsTable.id, item.productId));

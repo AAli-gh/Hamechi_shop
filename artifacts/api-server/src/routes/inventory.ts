@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, productsTable, categoriesTable, stockNotificationsTable } from "@workspace/db";
+import { db, productsTable, productVariantsTable, categoriesTable, stockNotificationsTable } from "@workspace/db";
 import { eq, lte, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middleware/auth";
 
@@ -37,10 +37,20 @@ router.get("/inventory", async (req, res) => {
   res.json({ items, summary });
 });
 
+async function hasVariants(productId: number): Promise<boolean> {
+  const [row] = await db.select({ id: productVariantsTable.id }).from(productVariantsTable)
+    .where(eq(productVariantsTable.productId, productId)).limit(1);
+  return !!row;
+}
+
+const VARIANT_STOCK_ERROR = "موجودی این کالا برای هر تنوع (رنگ/سایز) جداگانه است؛ آن را از فرم محصول ویرایش کنید";
+
 router.patch("/inventory/:id/stock", async (req, res): Promise<void> => {
   const id = parseInt(req.params["id"] ?? "0", 10);
   const { stock } = req.body as { stock: number; note?: string };
   if (typeof stock !== "number" || stock < 0) { res.status(400).json({ error: "Invalid stock value" }); return; }
+  // products.stock is the sum of variant stock for these products; editing it directly would desync them.
+  if (await hasVariants(id)) { res.status(409).json({ error: VARIANT_STOCK_ERROR }); return; }
 
   const [before] = await db.select({ stock: productsTable.stock }).from(productsTable).where(eq(productsTable.id, id));
   const [updated] = await db.update(productsTable).set({ stock }).where(eq(productsTable.id, id)).returning();
@@ -59,6 +69,7 @@ router.post("/inventory/bulk-restock", async (req, res) => {
   const { items } = req.body as { items: Array<{ id: number; stock: number }> };
   const results = await Promise.all(
     items.map(async ({ id, stock }) => {
+      if (await hasVariants(id)) return [];
       const [before] = await db.select({ stock: productsTable.stock }).from(productsTable).where(eq(productsTable.id, id));
       const result = await db.update(productsTable).set({ stock }).where(eq(productsTable.id, id)).returning();
       if (before && before.stock === 0 && stock > 0) {

@@ -174,6 +174,7 @@ export default function Checkout() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{item.product.nameFa}</p>
+                      {item.variantLabel && <p className="text-[11px] text-muted-foreground truncate">{item.variantLabel}</p>}
                       <p className="text-xs text-muted-foreground">{item.quantity.toLocaleString("fa-IR")} عدد × {item.price.toLocaleString("fa-IR")}</p>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull, type SQL } from "drizzle-orm";
 import { z } from "zod";
-import { db, cartsTable, cartItemsTable, productsTable } from "@workspace/db";
+import { db, cartsTable, cartItemsTable, productsTable, productVariantsTable } from "@workspace/db";
 import { AddToCartBody, UpdateCartItemBody } from "@workspace/api-zod";
 import { currentPrice, loadEnrichedProducts } from "../lib/products";
 
@@ -21,7 +21,17 @@ async function getCartWithItems(sessionId: string) {
   const products = await loadEnrichedProducts(items.map((item) => item.productId));
   const validItems = items
     .filter((item) => products.has(item.productId))
-    .map((item) => ({ ...item, price: Number(item.price), product: products.get(item.productId)! }));
+    .map((item) => {
+      const product = products.get(item.productId)!;
+      const variant = item.variantId != null ? product.variants.find((v) => v.id === item.variantId) : undefined;
+      return {
+        ...item,
+        price: Number(item.price),
+        product,
+        variantLabel: variant?.label ?? null,
+        availableStock: variant ? variant.stock : product.stock,
+      };
+    });
   const subtotal = validItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const itemCount = validItems.reduce((s, i) => s + i.quantity, 0);
   return { id: cart.id, sessionId: cart.sessionId, items: validItems, subtotal, itemCount };
@@ -68,23 +78,35 @@ router.post("/cart", async (req, res): Promise<void> => {
   const parsed = AddToCartBody.extend({ quantity: Quantity, sessionId: SessionId }).safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "تعداد نامعتبر است" }); return; }
   const { productId, quantity, sessionId } = parsed.data;
+  const variantId = parsed.data.variantId ?? null;
 
   const [product] = await db.select().from(productsTable).where(eq(productsTable.id, productId));
   if (!product) { res.status(404).json({ error: "Product not found" }); return; }
 
+  const variants = await db.select().from(productVariantsTable).where(eq(productVariantsTable.productId, productId));
+  const variant = variantId != null ? variants.find((v) => v.id === variantId) : undefined;
+  if (variants.length > 0 && !variant) { res.status(400).json({ error: "لطفاً گزینه‌ی موردنظر (مثلاً رنگ یا سایز) را انتخاب کنید" }); return; }
+  if (variants.length === 0 && variantId != null) { res.status(400).json({ error: "این کالا گزینه‌ای برای انتخاب ندارد" }); return; }
+  const stock = variant ? variant.stock : product.stock;
+
   let [cart] = await db.select().from(cartsTable).where(eq(cartsTable.sessionId, sessionId));
   if (!cart) [cart] = await db.insert(cartsTable).values({ sessionId }).returning();
 
-  const [existing] = await db.select().from(cartItemsTable).where(and(eq(cartItemsTable.cartId, cart.id), eq(cartItemsTable.productId, productId)));
+  const sameLine: SQL[] = [
+    eq(cartItemsTable.cartId, cart.id),
+    eq(cartItemsTable.productId, productId),
+    variant ? eq(cartItemsTable.variantId, variant.id) : isNull(cartItemsTable.variantId),
+  ];
+  const [existing] = await db.select().from(cartItemsTable).where(and(...sameLine));
   const newQuantity = (existing?.quantity ?? 0) + quantity;
-  if (newQuantity > product.stock) { stockError(res, product.stock); return; }
+  if (newQuantity > stock) { stockError(res, stock); return; }
   if (newQuantity > MAX_QUANTITY_PER_ITEM) { res.status(400).json({ error: "تعداد درخواستی بیش از حد مجاز است" }); return; }
 
-  const price = String(currentPrice(product));
+  const price = String(currentPrice(product, variant));
   if (existing) {
     await db.update(cartItemsTable).set({ quantity: newQuantity, price }).where(eq(cartItemsTable.id, existing.id));
   } else {
-    await db.insert(cartItemsTable).values({ cartId: cart.id, productId, quantity, price });
+    await db.insert(cartItemsTable).values({ cartId: cart.id, productId, variantId: variant?.id ?? null, quantity, price });
   }
   res.json(await getCartWithItems(sessionId));
 });
@@ -95,8 +117,10 @@ router.patch("/cart/:itemId", async (req, res): Promise<void> => {
   const owned = await findOwnedItem(req, res);
   if (!owned) return;
 
-  const [product] = await db.select().from(productsTable).where(eq(productsTable.id, owned.item.productId));
-  if (product && parsed.data.quantity > product.stock) { stockError(res, product.stock); return; }
+  const [stockRow] = owned.item.variantId != null
+    ? await db.select({ stock: productVariantsTable.stock }).from(productVariantsTable).where(eq(productVariantsTable.id, owned.item.variantId))
+    : await db.select({ stock: productsTable.stock }).from(productsTable).where(eq(productsTable.id, owned.item.productId));
+  if (stockRow && parsed.data.quantity > stockRow.stock) { stockError(res, stockRow.stock); return; }
 
   await db.update(cartItemsTable).set({ quantity: parsed.data.quantity }).where(eq(cartItemsTable.id, owned.item.id));
   res.json(await getCartWithItems(owned.sessionId));

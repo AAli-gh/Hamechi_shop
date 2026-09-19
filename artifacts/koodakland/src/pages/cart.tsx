@@ -82,6 +82,7 @@ export default function Cart() {
                 <div className="flex-1 flex flex-col gap-2">
                   <Link href={`/product/${item.product.slug}`}>
                     <h3 className="font-bold text-sm hover:text-primary transition-colors line-clamp-2">{item.product.nameFa}</h3>
+                    {item.variantLabel && <p className="text-xs text-muted-foreground mt-0.5">{item.variantLabel}</p>}
                   </Link>
                   <span className="text-sm font-black text-primary">{item.price.toLocaleString("fa-IR")} تومان</span>
                   <div className="flex items-center justify-between mt-auto">
@@ -90,7 +91,7 @@ export default function Cart() {
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="w-6 text-center text-sm font-bold">{item.quantity.toLocaleString("fa-IR")}</span>
-                      <button onClick={() => setQuantity(item, item.quantity + 1)} disabled={item.quantity >= item.product.stock || updateItem.isPending} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-background">
+                      <button onClick={() => setQuantity(item, item.quantity + 1)} disabled={item.quantity >= item.availableStock || updateItem.isPending} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-background">
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>

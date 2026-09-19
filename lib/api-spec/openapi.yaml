@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Api
   version: 0.1.0
-  description: Koodakland Baby & Kids Store API
+  description: Bazarcheh general store API
 servers:
   - url: /api
     description: Base API path
@@ -170,6 +170,48 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Product"
+
+  /products/slug/{slug}:
+    get:
+      operationId: getProductBySlug
+      tags: [products]
+      summary: Get product by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}/variants:
+    put:
+      operationId: setProductVariants
+      tags: [products]
+      summary: Replace a product's variants (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductVariantsInput"
+      responses:
+        "200":
+          description: Product with its new variants
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
 
   /products/{id}:
     get:
@@ -1104,7 +1146,54 @@ components:
         avgRating: { type: ["number", "null"] }
         reviewCount: { type: integer }
         createdAt: { type: string }
-      required: [id, name, nameFa, slug, price, images, categoryId, stock, isFeatured, isFlashSale, reviewCount, createdAt]
+        variants: { type: array, items: { $ref: "#/components/schemas/ProductVariant" } }
+      required: [id, name, nameFa, slug, price, images, categoryId, stock, isFeatured, isFlashSale, reviewCount, createdAt, variants]
+
+    ProductVariant:
+      type: object
+      description: A purchasable version of a product, e.g. a color and size.
+      properties:
+        id: { type: integer }
+        options:
+          type: array
+          items: { $ref: "#/components/schemas/VariantOption" }
+          description: Ordered option values, e.g. رنگ=مشکی then سایز=۴۲
+        label: { type: string, description: 'Option values joined with " / "' }
+        sku: { type: ["string", "null"] }
+        price: { type: number, description: Effective regular price (own price or the product's) }
+        salePrice: { type: ["number", "null"] }
+        ownPrice: { type: ["number", "null"], description: "Price stored on the variant; null means it inherits the product's prices" }
+        ownSalePrice: { type: ["number", "null"] }
+        stock: { type: integer }
+      required: [id, options, label, price, stock, ownPrice, ownSalePrice]
+
+    VariantOption:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 30 }
+        value: { type: string, minLength: 1, maxLength: 50 }
+      required: [name, value]
+
+    ProductVariantInput:
+      type: object
+      properties:
+        id: { type: ["integer", "null"], description: Existing variant to update; omit to create }
+        options:
+          type: array
+          items: { $ref: "#/components/schemas/VariantOption" }
+          minItems: 1
+          maxItems: 3
+        sku: { type: ["string", "null"] }
+        price: { type: ["number", "null"], description: Overrides the product price when set }
+        salePrice: { type: ["number", "null"] }
+        stock: { type: integer, minimum: 0 }
+      required: [options, stock]
+
+    ProductVariantsInput:
+      type: object
+      properties:
+        variants: { type: array, items: { $ref: "#/components/schemas/ProductVariantInput" }, maxItems: 100 }
+      required: [variants]
 
     ProductInput:
       type: object
@@ -1200,9 +1289,12 @@ components:
         id: { type: integer }
         productId: { type: integer }
         product: { $ref: "#/components/schemas/Product" }
+        variantId: { type: ["integer", "null"] }
+        variantLabel: { type: ["string", "null"] }
+        availableStock: { type: integer, description: "Stock of the chosen variant, or of the product" }
         quantity: { type: integer }
         price: { type: number }
-      required: [id, productId, product, quantity, price]
+      required: [id, productId, product, quantity, price, availableStock]
 
     Cart:
       type: object
@@ -1218,6 +1310,7 @@ components:
       type: object
       properties:
         productId: { type: integer }
+        variantId: { type: ["integer", "null"], description: Required when the product has variants }
         quantity: { type: integer, minimum: 1, maximum: 20 }
         sessionId: { type: string }
       required: [productId, quantity, sessionId]
@@ -1253,6 +1346,8 @@ components:
         id: { type: integer }
         productId: { type: integer }
         productName: { type: string }
+        variantId: { type: ["integer", "null"] }
+        variantName: { type: ["string", "null"] }
         quantity: { type: integer }
         price: { type: number }
         image: { type: ["string", "null"] }

@@ -19,7 +19,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const setCart = useSetCartData();
   const { toast } = useToast();
 
+  const hasVariants = product.variants.length > 0;
+  // Different variants can cost different amounts; show the cheapest as "از ...".
+  const variantPrices = product.variants.map((v) => v.salePrice ?? v.price);
+  const priceVaries = hasVariants && new Set(variantPrices).size > 1;
+
   const handleAddToCart = (e: React.MouseEvent) => {
+    // A product with options (color, size, ...) needs a choice first: let the
+    // click fall through to the card link, which opens the product page.
+    if (hasVariants) return;
     e.preventDefault();
     e.stopPropagation();
     
@@ -116,7 +124,9 @@ export function ProductCard({ product }: ProductCardProps) {
           
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
             <div className="flex flex-col">
-              {hasDiscount ? (
+              {priceVaries ? (
+                <span className="font-extrabold text-foreground text-sm sm:text-base">از {Math.min(...variantPrices).toLocaleString("fa-IR")} تومان</span>
+              ) : hasDiscount ? (
                 <>
                   <span className="text-xs text-muted-foreground line-through decoration-destructive/50">{product.price.toLocaleString("fa-IR")} تومان</span>
                   <span className="font-extrabold text-primary text-sm sm:text-base">{product.salePrice!.toLocaleString("fa-IR")} تومان</span>
@@ -130,6 +140,8 @@ export function ProductCard({ product }: ProductCardProps) {
               size="icon" 
               className="rounded-full shadow-sm shrink-0 w-8 h-8 sm:w-10 sm:h-10 transition-transform active:scale-95"
               onClick={handleAddToCart}
+              aria-label={hasVariants ? "انتخاب گزینه‌ها" : "افزودن به سبد خرید"}
+              title={hasVariants ? "انتخاب گزینه‌ها" : "افزودن به سبد خرید"}
             >
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>

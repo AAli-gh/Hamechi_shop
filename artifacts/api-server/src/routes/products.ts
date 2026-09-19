@@ -1,9 +1,10 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, and, gte, lte, sql, desc, asc } from "drizzle-orm";
-import { db, productsTable, categoriesTable } from "@workspace/db";
-import { enrichProduct, enrichProducts } from "../lib/products";
+import { eq, and, gte, lte, sql, desc, asc, inArray } from "drizzle-orm";
+import { db, productsTable, productVariantsTable, cartItemsTable, categoriesTable } from "@workspace/db";
+import { enrichProduct, enrichProducts, syncProductStock } from "../lib/products";
 import {
   ListProductsQueryParams,
+  SetProductVariantsBody,
   CreateProductBody,
   GetProductParams,
   UpdateProductParams,
@@ -70,6 +71,78 @@ router.get("/products/new-arrivals", async (_req, res): Promise<void> => {
   res.json(enriched);
 });
 
+router.get("/products/slug/:slug", async (req, res): Promise<void> => {
+  const [product] = await db.select().from(productsTable).where(eq(productsTable.slug, String(req.params.slug)));
+  if (!product) { res.status(404).json({ error: "محصول یافت نشد" }); return; }
+  res.json(await enrichProduct(product));
+});
+
+// Replaces the product's variant list: rows with an id are updated, rows without
+// one are created, and variants missing from the list are deleted.
+router.put("/products/:id/variants", requireAuth, requireAdmin, async (req, res): Promise<void> => {
+  const productId = parseInt(String(req.params.id), 10);
+  const parsed = SetProductVariantsBody.safeParse(req.body);
+  if (isNaN(productId) || !parsed.success) { res.status(400).json({ error: "اطلاعات تنوع‌ها معتبر نیست" }); return; }
+  const input = parsed.data.variants.map((v) => ({
+    ...v,
+    options: v.options.map((o) => ({ name: o.name.trim(), value: o.value.trim() })),
+  }));
+
+  // Every variant must use the same option names in the same order, and each
+  // combination of values may appear only once.
+  const optionNames = input[0]?.options.map((o) => o.name).join("|");
+  if (input.some((v) => v.options.map((o) => o.name).join("|") !== optionNames)) {
+    res.status(400).json({ error: "همه‌ی تنوع‌ها باید ویژگی‌های یکسانی داشته باشند" }); return;
+  }
+  const combos = input.map((v) => v.options.map((o) => o.value).join("|"));
+  if (new Set(combos).size !== combos.length) {
+    res.status(400).json({ error: "ترکیب تکراری در تنوع‌ها وجود دارد" }); return;
+  }
+  if (input.some((v) => !Number.isInteger(v.stock) || v.stock < 0 || (v.price != null && v.price < 0))) {
+    res.status(400).json({ error: "قیمت و موجودی نمی‌توانند منفی باشند" }); return;
+  }
+
+  const [product] = await db.select().from(productsTable).where(eq(productsTable.id, productId));
+  if (!product) { res.status(404).json({ error: "محصول یافت نشد" }); return; }
+
+  const ok = await db.transaction(async (tx) => {
+    const existing = await tx.select({ id: productVariantsTable.id }).from(productVariantsTable)
+      .where(eq(productVariantsTable.productId, productId));
+    const existingIds = new Set(existing.map((v) => v.id));
+    if (input.some((v) => v.id != null && !existingIds.has(v.id))) return false;
+
+    const keptIds = new Set(input.filter((v) => v.id != null).map((v) => v.id!));
+    const removedIds = [...existingIds].filter((id) => !keptIds.has(id));
+    if (removedIds.length > 0) {
+      // Order items keep their own snapshot, but open carts must not point at deleted variants.
+      await tx.delete(cartItemsTable).where(inArray(cartItemsTable.variantId, removedIds));
+      await tx.delete(productVariantsTable).where(inArray(productVariantsTable.id, removedIds));
+    }
+
+    for (const [sortOrder, v] of input.entries()) {
+      const values = {
+        options: v.options,
+        sku: v.sku || null,
+        price: v.price != null ? String(v.price) : null,
+        salePrice: v.salePrice != null ? String(v.salePrice) : null,
+        stock: v.stock,
+        sortOrder,
+      };
+      if (v.id != null) {
+        await tx.update(productVariantsTable).set(values).where(eq(productVariantsTable.id, v.id));
+      } else {
+        await tx.insert(productVariantsTable).values({ ...values, productId });
+      }
+    }
+    await syncProductStock(productId, tx);
+    return true;
+  });
+  if (!ok) { res.status(400).json({ error: "تنوع انتخاب‌شده متعلق به این محصول نیست" }); return; }
+
+  const [updated] = await db.select().from(productsTable).where(eq(productsTable.id, productId));
+  res.json(await enrichProduct(updated));
+});
+
 router.get("/products/:id", async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
@@ -85,6 +158,10 @@ router.patch("/products/:id", requireAuth, requireAdmin, async (req, res): Promi
   const parsed = UpdateProductBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
   const updateData: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+  const [variantCount] = await db.select({ count: sql<number>`count(*)` }).from(productVariantsTable)
+    .where(eq(productVariantsTable.productId, id));
+  // With variants, stock is the sum of variant stock and is maintained by syncProductStock.
+  if (Number(variantCount?.count ?? 0) > 0) delete updateData.stock;
   if (parsed.data.images) updateData.images = parsed.data.images;
   if (parsed.data.flashSaleEndsAt) updateData.flashSaleEndsAt = new Date(parsed.data.flashSaleEndsAt);
   const [product] = await db.update(productsTable).set(updateData).where(eq(productsTable.id, id)).returning();
@@ -95,7 +172,11 @@ router.patch("/products/:id", requireAuth, requireAdmin, async (req, res): Promi
 router.delete("/products/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
-  await db.delete(productsTable).where(eq(productsTable.id, id));
+  await db.transaction(async (tx) => {
+    await tx.delete(cartItemsTable).where(eq(cartItemsTable.productId, id));
+    await tx.delete(productVariantsTable).where(eq(productVariantsTable.productId, id));
+    await tx.delete(productsTable).where(eq(productsTable.id, id));
+  });
   res.sendStatus(204);
 });
 

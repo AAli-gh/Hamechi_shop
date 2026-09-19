@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useListProducts, useDeleteProduct, useCreateProduct, useUpdateProduct } from "@workspace/api-client-react";
+import { useListProducts, useListCategories, useDeleteProduct, useCreateProduct, useUpdateProduct, useSetProductVariants, type Product } from "@workspace/api-client-react";
+import { VariantEditor, draftFromVariants, draftToInput, type VariantDraft } from "@/components/admin/VariantEditor";
+import { apiErrorMessage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -17,34 +19,55 @@ export default function AdminProducts() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<typeof EMPTY_FORM>(EMPTY_FORM);
+  const [variantDraft, setVariantDraft] = useState<VariantDraft>({ optionNames: [], rows: [] });
+  const [hadVariants, setHadVariants] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const { data, isLoading } = useListProducts({ page, limit: 15 });
   const deleteProduct = useDeleteProduct();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
+  const setProductVariants = useSetProductVariants();
+  const { data: categories } = useListCategories();
+  const usesVariants = variantDraft.rows.length > 0;
 
   const products = data?.products || [];
   const filtered = products.filter(p => p.nameFa.includes(search) || p.name.toLowerCase().includes(search.toLowerCase()));
 
-  const openAdd = () => { setEditId(null); setForm(EMPTY_FORM); setDialogOpen(true); };
-  const openEdit = (p: typeof products[0]) => {
+  const openAdd = () => {
+    setEditId(null); setForm(EMPTY_FORM);
+    setVariantDraft({ optionNames: [], rows: [] }); setHadVariants(false);
+    setDialogOpen(true);
+  };
+  const openEdit = (p: Product) => {
+    setVariantDraft(draftFromVariants(p.variants)); setHadVariants(p.variants.length > 0);
     setEditId(p.id);
     setForm({ name: p.name, nameFa: p.nameFa, slug: p.slug, price: String(p.price), salePrice: p.salePrice ? String(p.salePrice) : "", categoryId: String(p.categoryId), stock: String(p.stock), brand: p.brand || "", ageGroup: p.ageGroup || "", descriptionFa: p.descriptionFa || "", isFeatured: p.isFeatured, isFlashSale: p.isFlashSale });
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const variantsInput = draftToInput(variantDraft);
+    if ("error" in variantsInput) { toast({ title: "تنوع‌ها", description: variantsInput.error, variant: "destructive" }); return; }
+    if (!form.categoryId) { toast({ title: "دسته‌بندی را انتخاب کنید", variant: "destructive" }); return; }
+
     const payload: any = { ...form, price: Number(form.price), salePrice: form.salePrice ? Number(form.salePrice) : null, categoryId: Number(form.categoryId), stock: Number(form.stock) };
-    if (editId) {
-      updateProduct.mutate({ id: editId, data: payload }, {
-        onSuccess: () => { toast({ title: "محصول به‌روز شد" }); setDialogOpen(false); qc.invalidateQueries(); },
-        onError: () => toast({ title: "خطا", variant: "destructive" }),
-      });
-    } else {
-      createProduct.mutate({ data: payload }, {
-        onSuccess: () => { toast({ title: "محصول اضافه شد" }); setDialogOpen(false); qc.invalidateQueries(); },
-        onError: () => toast({ title: "خطا", variant: "destructive" }),
-      });
+    setSaving(true);
+    try {
+      const product = editId
+        ? await updateProduct.mutateAsync({ id: editId, data: payload })
+        : await createProduct.mutateAsync({ data: payload });
+      // Variants are saved separately; skip the call for products that never had any.
+      if (variantsInput.variants.length > 0 || hadVariants) {
+        await setProductVariants.mutateAsync({ id: product.id, data: { variants: variantsInput.variants } });
+      }
+      toast({ title: editId ? "محصول به‌روز شد" : "محصول اضافه شد" });
+      setDialogOpen(false);
+      qc.invalidateQueries();
+    } catch (error) {
+      toast({ title: "خطا", description: apiErrorMessage(error, "ذخیره‌ی محصول انجام نشد"), variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -100,6 +123,7 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-100 text-red-600" : p.stock < 5 ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>{p.stock.toLocaleString("fa-IR")}</span>
+                    {p.variants.length > 0 && <span className="text-[11px] text-muted-foreground mr-2">{p.variants.length.toLocaleString("fa-IR")} تنوع</span>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
@@ -121,32 +145,46 @@ export default function AdminProducts() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg" dir="rtl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader><DialogTitle>{editId ? "ویرایش محصول" : "افزودن محصول"}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             {[
               { k: "nameFa", l: "نام فارسی" }, { k: "name", l: "نام انگلیسی" },
               { k: "slug", l: "slug" }, { k: "brand", l: "برند" },
               { k: "price", l: "قیمت (تومان)", t: "number" }, { k: "salePrice", l: "قیمت تخفیف (اختیاری)", t: "number" },
-              { k: "categoryId", l: "شناسه دسته‌بندی", t: "number" }, { k: "stock", l: "موجودی", t: "number" },
+              { k: "stock", l: usesVariants ? "موجودی (مجموع تنوع‌ها)" : "موجودی", t: "number" },
               { k: "ageGroup", l: "گروه سنی (اختیاری)" },
             ].map(({ k, l, t }) => (
               <div key={k} className={k === "nameFa" ? "col-span-2" : ""}>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">{l}</label>
                 <input type={t || "text"} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                  className="h-9 w-full rounded-lg bg-muted border-none px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                  disabled={k === "stock" && usesVariants}
+                  className="h-9 w-full rounded-lg bg-muted border-none px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60" />
               </div>
             ))}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">دسته‌بندی</label>
+              <select value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
+                className="h-9 w-full rounded-lg bg-muted border-none px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                <option value="">انتخاب کنید</option>
+                {categories?.map((c) => <option key={c.id} value={c.id}>{c.nameFa}</option>)}
+              </select>
+            </div>
             <div className="col-span-2">
               <label className="text-xs font-medium text-muted-foreground mb-1 block">توضیحات فارسی</label>
               <textarea value={form.descriptionFa} onChange={e => setForm(f => ({ ...f, descriptionFa: e.target.value }))} rows={2} className="w-full rounded-lg bg-muted border-none px-3 py-2 text-sm focus:outline-none resize-none" />
             </div>
             <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.isFeatured} onChange={e => setForm(f => ({ ...f, isFeatured: e.target.checked }))} /><span className="text-sm">محصول ویژه</span></label>
             <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.isFlashSale} onChange={e => setForm(f => ({ ...f, isFlashSale: e.target.checked }))} /><span className="text-sm">حراج زمان‌دار</span></label>
+            <div className="col-span-2 border-t border-border/50 pt-4">
+              <h3 className="font-bold text-sm mb-1">تنوع‌ها (رنگ، سایز، حافظه و ...)</h3>
+              <p className="text-xs text-muted-foreground mb-3">برای کالاهای بدون گزینه خالی بگذارید. با داشتن تنوع، موجودی هر ترکیب جداگانه ثبت می‌شود.</p>
+              {dialogOpen && <VariantEditor key={editId ?? "new"} draft={variantDraft} onChange={setVariantDraft} />}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>انصراف</Button>
-            <Button onClick={handleSave} className="font-bold" disabled={createProduct.isPending || updateProduct.isPending}>{editId ? "به‌روزرسانی" : "افزودن"}</Button>
+            <Button onClick={handleSave} className="font-bold" disabled={saving}>{saving ? "در حال ذخیره..." : editId ? "به‌روزرسانی" : "افزودن"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

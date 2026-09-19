@@ -26,7 +26,10 @@ export const orderItemsTable = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull(),
   productId: integer("product_id").notNull(),
+  variantId: integer("variant_id"),
   productName: text("product_name").notNull(),
+  // Snapshot of the variant label at order time, e.g. "مشکی / ۴۲".
+  variantName: text("variant_name"),
   quantity: integer("quantity").notNull(),
   price: numeric("price", { precision: 12, scale: 0 }).notNull(),
   image: text("image"),

@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
-import { useGetRelatedProducts, useListReviews, useAddToCart, useCreateReview, Product } from "@workspace/api-client-react";
+import { useGetRelatedProducts, useListReviews, useAddToCart, useCreateReview, useGetProductBySlug } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,14 +12,7 @@ import { apiErrorMessage } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck } from "lucide-react";
 import { StockNotifyForm } from "@/components/product/StockNotifyForm";
-
-async function fetchProductBySlug(slug: string): Promise<Product> {
-  const res = await fetch(`/api/products?limit=100&page=1`);
-  const data = await res.json();
-  const product = data.products?.find((p: Product) => p.slug === slug);
-  if (!product) throw new Error("Product not found");
-  return product;
-}
+import { VariantPicker, useVariantSelection } from "@/components/product/VariantPicker";
 
 export default function ProductPage() {
   const [, params] = useRoute("/product/:slug");
@@ -36,11 +28,21 @@ export default function ProductPage() {
   const { sessionId } = useCartSession();
   const { toast } = useToast();
 
-  const { data: product, isLoading } = useQuery({
-    queryKey: ["product-by-slug", slug],
-    queryFn: () => fetchProductBySlug(slug),
-    enabled: !!slug,
+  const { data: product, isLoading } = useGetProductBySlug(slug, {
+    query: { enabled: !!slug, queryKey: ["product-by-slug", slug], retry: false },
   });
+
+  const variants = useMemo(() => product?.variants ?? [], [product]);
+  const picker = useVariantSelection(variants);
+  const hasVariants = variants.length > 0;
+  const selectedVariant = picker.selectedVariant;
+  // What the customer is looking at: the chosen variant, or the product itself.
+  const shown = selectedVariant ?? product;
+  const availableStock = hasVariants ? (selectedVariant?.stock ?? 0) : (product?.stock ?? 0);
+
+  useEffect(() => {
+    setQuantity((q) => Math.max(1, Math.min(q, availableStock || 1)));
+  }, [availableStock]);
 
   const { data: related } = useGetRelatedProducts(product?.id ?? 0, {
     query: { enabled: !!product?.id, queryKey: ["related", product?.id] }
@@ -55,10 +57,15 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    addToCart.mutate({ data: { productId: product.id, quantity, sessionId } }, {
+    if (hasVariants && !selectedVariant) {
+      toast({ title: "انتخاب گزینه", description: "لطفاً همه‌ی گزینه‌ها را انتخاب کنید", variant: "destructive" });
+      return;
+    }
+    addToCart.mutate({ data: { productId: product.id, variantId: selectedVariant?.id ?? null, quantity, sessionId } }, {
       onSuccess: (cart) => {
         setCart(cart);
-        toast({ title: "به سبد اضافه شد", description: `${product.nameFa} به سبد خرید اضافه شد.` });
+        const name = selectedVariant ? `${product.nameFa} (${selectedVariant.label})` : product.nameFa;
+        toast({ title: "به سبد اضافه شد", description: `${name} به سبد خرید اضافه شد.` });
       },
       onError: (error) => toast({ title: "خطا", description: apiErrorMessage(error, "افزودن به سبد خرید انجام نشد"), variant: "destructive" }),
     });
@@ -96,8 +103,10 @@ export default function ProductPage() {
     </div>
   );
 
-  const hasDiscount = product.salePrice && product.salePrice < product.price;
-  const discountPercent = hasDiscount ? Math.round((1 - product.salePrice! / product.price) * 100) : 0;
+  const price = shown!.price;
+  const salePrice = shown!.salePrice ?? null;
+  const hasDiscount = salePrice != null && salePrice < price;
+  const discountPercent = hasDiscount ? Math.round((1 - salePrice / price) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -143,26 +152,30 @@ export default function ProductPage() {
             <div className="flex flex-col">
               {hasDiscount ? (
                 <>
-                  <span className="text-muted-foreground line-through text-sm">{product.price.toLocaleString("fa-IR")} تومان</span>
-                  <span className="text-3xl font-black text-primary">{product.salePrice!.toLocaleString("fa-IR")} تومان</span>
+                  <span className="text-muted-foreground line-through text-sm">{price.toLocaleString("fa-IR")} تومان</span>
+                  <span className="text-3xl font-black text-primary">{salePrice!.toLocaleString("fa-IR")} تومان</span>
                 </>
               ) : (
-                <span className="text-3xl font-black text-foreground">{product.price.toLocaleString("fa-IR")} تومان</span>
+                <span className="text-3xl font-black text-foreground">{price.toLocaleString("fa-IR")} تومان</span>
               )}
             </div>
 
             {product.brand && <div className="text-sm text-muted-foreground">برند: <span className="font-semibold text-foreground">{product.brand}</span></div>}
             {product.ageGroup && <div className="text-sm text-muted-foreground">گروه سنی: <span className="font-semibold text-foreground">{product.ageGroup}</span></div>}
 
-            <div className={`inline-flex items-center gap-2 text-sm font-semibold ${(product.stock ?? 0) > 0 ? "text-green-600" : "text-destructive"}`}>
+            {hasVariants && <VariantPicker picker={picker} />}
+
+            <div className={`inline-flex items-center gap-2 text-sm font-semibold ${availableStock > 0 ? "text-green-600" : "text-destructive"}`}>
               <Package className="w-4 h-4" />
-              {(product.stock ?? 0) > 0 ? `${(product.stock ?? 0).toLocaleString("fa-IR")} عدد در انبار` : "ناموجود"}
+              {availableStock > 0 ? `${availableStock.toLocaleString("fa-IR")} عدد در انبار` : hasVariants && product.stock > 0 ? "این گزینه ناموجود است" : "ناموجود"}
             </div>
 
             <Separator />
 
-            {(product.stock ?? 0) === 0 ? (
+            {product.stock === 0 ? (
               <StockNotifyForm productId={product.id} />
+            ) : availableStock === 0 ? (
+              <p className="text-sm text-muted-foreground">گزینه‌ی دیگری انتخاب کنید.</p>
             ) : (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 bg-muted rounded-full px-2 py-1">
@@ -170,7 +183,7 @@ export default function ProductPage() {
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="w-8 text-center font-bold">{quantity.toLocaleString("fa-IR")}</span>
-                  <button onClick={() => setQuantity(q => Math.min(product.stock ?? 99, q + 1))} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-background transition-colors">
+                  <button onClick={() => setQuantity(q => Math.min(availableStock, q + 1))} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-background transition-colors">
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>

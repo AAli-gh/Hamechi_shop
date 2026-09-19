@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useListOrders, useUpdateOrder } from "@workspace/api-client-react";
+import { useListOrders, useUpdateOrder, type Order } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -21,12 +21,56 @@ const STATUS_STYLE: Record<string, string> = {
   cancelled: "bg-red-100 text-red-700",
 };
 
+/** addressSnapshot is JSON written at checkout; older orders may hold plain text. */
+function formatAddress(snapshot: string | null | undefined): string {
+  if (!snapshot) return "—";
+  try {
+    const a = JSON.parse(snapshot) as Record<string, string>;
+    return [a.province, a.city, a.street, a.postalCode && `کد پستی ${a.postalCode}`].filter(Boolean).join("، ");
+  } catch {
+    return snapshot;
+  }
+}
+
+function OrderDetails({ order }: { order: Order }) {
+  return (
+    <div className="flex flex-col gap-3 text-sm">
+      <div className="grid grid-cols-2 gap-2 bg-muted/40 rounded-xl p-3">
+        <div><span className="text-muted-foreground">مشتری: </span>{order.customerName || "—"}</div>
+        <div dir="ltr" className="text-right"><span className="text-muted-foreground" dir="rtl">موبایل: </span>{order.customerPhone || "—"}</div>
+        <div className="col-span-2"><span className="text-muted-foreground">آدرس: </span>{formatAddress(order.addressSnapshot)}</div>
+        {order.notes && <div className="col-span-2"><span className="text-muted-foreground">توضیحات: </span>{order.notes}</div>}
+      </div>
+      <ul className="flex flex-col divide-y divide-border/40 max-h-56 overflow-y-auto">
+        {order.items.map((item) => (
+          <li key={item.id} className="flex items-center gap-3 py-2">
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted shrink-0">
+              {item.image && <img src={item.image} alt="" className="w-full h-full object-cover" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{item.productName}</p>
+              {item.variantName && <p className="text-xs text-muted-foreground">{item.variantName}</p>}
+            </div>
+            <span className="text-xs text-muted-foreground shrink-0">{item.quantity.toLocaleString("fa-IR")} × {item.price.toLocaleString("fa-IR")}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-col gap-1 border-t border-border/50 pt-2">
+        <div className="flex justify-between"><span className="text-muted-foreground">جمع کالاها</span><span>{order.subtotal.toLocaleString("fa-IR")}</span></div>
+        {order.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-green-600">-{order.discount.toLocaleString("fa-IR")}</span></div>}
+        <div className="flex justify-between"><span className="text-muted-foreground">ارسال ({order.shippingMethod || "—"})</span><span>{order.shippingCost === 0 ? "رایگان" : order.shippingCost.toLocaleString("fa-IR")}</span></div>
+        <div className="flex justify-between font-black"><span>مبلغ کل (تومان)</span><span className="text-primary">{order.total.toLocaleString("fa-IR")}</span></div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminOrders() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [newStatus, setNewStatus] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
 
@@ -82,7 +126,7 @@ export default function AdminOrders() {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground hidden md:table-cell text-xs">{new Date(order.createdAt).toLocaleDateString("fa-IR")}</td>
                   <td className="px-4 py-3">
-                    <Button size="sm" variant="outline" className="rounded-lg text-xs" onClick={() => { setSelectedOrder(order); setNewStatus(order.status); setTrackingCode(order.trackingCode || ""); }}>ویرایش</Button>
+                    <Button size="sm" variant="outline" className="rounded-lg text-xs" onClick={() => { setSelectedOrder(order); setNewStatus(order.status); setTrackingCode(order.trackingCode || ""); }}>جزئیات</Button>
                   </td>
                 </tr>
               ))}
@@ -98,9 +142,10 @@ export default function AdminOrders() {
       </div>
 
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent dir="rtl">
-          <DialogHeader><DialogTitle>ویرایش سفارش #{selectedOrder?.orderNumber}</DialogTitle></DialogHeader>
+        <DialogContent dir="rtl" className="max-w-lg">
+          <DialogHeader><DialogTitle>سفارش #{selectedOrder?.orderNumber}</DialogTitle></DialogHeader>
           <div className="flex flex-col gap-4 py-2">
+            {selectedOrder && <OrderDetails order={selectedOrder} />}
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1.5 block">وضعیت</label>
               <select value={newStatus} onChange={e => setNewStatus(e.target.value)} className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none">

@@ -14,6 +14,7 @@ export const cartItemsTable = pgTable("cart_items", {
   id: serial("id").primaryKey(),
   cartId: integer("cart_id").notNull(),
   productId: integer("product_id").notNull(),
+  variantId: integer("variant_id"),
   quantity: integer("quantity").notNull().default(1),
   price: numeric("price", { precision: 12, scale: 0 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
