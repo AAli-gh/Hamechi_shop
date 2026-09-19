@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetCart, useUpdateCartItem, useRemoveCartItem, useValidateDiscount } from "@workspace/api-client-react";
 import { useCartSession, useSetCartData } from "@/lib/cart";
-import { apiErrorMessage } from "@/lib/utils";
+import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import type { CartItem } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -76,7 +76,7 @@ export default function Cart() {
               <div key={item.id} className="bg-card rounded-2xl p-4 border border-border/50 flex gap-4">
                 <Link href={`/product/${item.product.slug}`} className="shrink-0">
                   <div className="w-20 h-20 rounded-xl overflow-hidden bg-muted">
-                    {item.product.images[0] && <img src={item.product.images[0]} alt={item.product.nameFa} className="w-full h-full object-cover" />}
+                    {item.product.images[0] && <img src={imageUrl(item.product.images[0], 160)} alt={item.product.nameFa} className="w-full h-full object-cover" />}
                   </div>
                 </Link>
                 <div className="flex-1 flex flex-col gap-2">

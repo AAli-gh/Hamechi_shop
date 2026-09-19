@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useCartSession, useSetCartData } from "@/lib/cart";
-import { apiErrorMessage } from "@/lib/utils";
+import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck } from "lucide-react";
 import { StockNotifyForm } from "@/components/product/StockNotifyForm";
@@ -115,7 +115,7 @@ export default function ProductPage() {
           <div className="flex flex-col gap-4">
             <div className="relative aspect-square rounded-3xl overflow-hidden bg-muted/30">
               {product.images && product.images.length > 0 ? (
-                <img src={product.images[activeImage]} alt={product.nameFa} className="w-full h-full object-cover" />
+                <img src={imageUrl(product.images[activeImage], 800)} alt={product.nameFa} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-16 h-16 text-muted-foreground/30" /></div>
               )}
@@ -129,7 +129,7 @@ export default function ProductPage() {
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {product.images.map((img, i) => (
                   <button key={i} onClick={() => setActiveImage(i)} className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${i === activeImage ? "border-primary" : "border-transparent"}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={imageUrl(img, 160)} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

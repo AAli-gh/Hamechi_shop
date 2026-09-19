@@ -5,6 +5,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye } from "lucide-react";
+import { imageUrl } from "@/lib/utils";
 
 export default function Blog() {
   useSEO({
@@ -47,7 +48,7 @@ export default function Blog() {
                 <article className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group cursor-pointer h-full flex flex-col">
                   {post.coverImage && (
                     <div className="aspect-video overflow-hidden">
-                      <img src={post.coverImage} alt={post.titleFa} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <img src={imageUrl(post.coverImage, 800)} alt={post.titleFa} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </div>
                   )}
                   <div className="p-5 flex flex-col gap-3 flex-1">

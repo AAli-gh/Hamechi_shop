@@ -2,14 +2,13 @@ import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import pinoHttp from "pino-http";
-import path from "path";
-import fs from "fs";
 import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { isDevAuth } from "./middleware/auth";
 import { applyRateLimits } from "./middlewares/rateLimits";
+import { UPLOADS_DIR, resizedImages } from "./lib/images";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
@@ -72,9 +71,9 @@ if (!isDevAuth) {
   );
 }
 
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-app.use("/api/uploads", express.static(uploadsDir));
+// ?w= serves a cached, resized WebP; otherwise the original file. Upload names are
+// unique per file, so both can be cached by browsers for a long time.
+app.use("/api/uploads", resizedImages, express.static(UPLOADS_DIR, { maxAge: "30d", immutable: true, dotfiles: "ignore" }));
 
 app.use("/api", router);
 

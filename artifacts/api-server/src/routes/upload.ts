@@ -1,49 +1,35 @@
 import { Router, type IRouter } from "express";
-import { requireAuth, requireAdmin } from "../middleware/auth";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { requireAuth, requireAdmin } from "../middleware/auth";
+import { InvalidImageError, saveUploadedImage } from "../lib/images";
 
 const router: IRouter = Router();
 
-const UPLOADS_DIR = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
-const EXTENSIONS: Record<string, string> = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp",
-  "image/gif": ".gif",
-};
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
-  filename: (_req, file, cb) => {
-    // The extension comes from the allow-listed mime type, not the uploaded name,
-    // so a file named "x.html" can never be stored and served as HTML.
-    const ext = EXTENSIONS[file.mimetype] ?? ".jpg";
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    cb(null, name);
-  },
-});
-
+// Kept in memory: every upload is re-encoded by sharp before anything touches the disk.
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    cb(null, file.mimetype in EXTENSIONS);
-  },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => cb(null, ALLOWED_TYPES.has(file.mimetype)),
 });
 
-router.post("/upload", requireAuth, requireAdmin, upload.single("file"), (req, res): void => {
-  if (!req.file) {
-    res.status(400).json({ error: "No file uploaded" });
-    return;
-  }
-  const url = `/api/uploads/${req.file.filename}`;
-  res.json({ url, filename: req.file.filename, size: req.file.size });
+router.post("/upload", requireAuth, requireAdmin, (req, res, next) => {
+  upload.single("file")(req, res, async (err: unknown) => {
+    if (err instanceof multer.MulterError) {
+      res.status(400).json({ error: err.code === "LIMIT_FILE_SIZE" ? "حجم فایل بیشتر از ۵ مگابایت است" : "آپلود انجام نشد" });
+      return;
+    }
+    if (err) { next(err); return; }
+    if (!req.file) { res.status(400).json({ error: "فقط فایل‌های JPG، PNG، WEBP و GIF پذیرفته می‌شوند" }); return; }
+    try {
+      const saved = await saveUploadedImage(req.file.buffer);
+      res.json({ url: saved.url, width: saved.width, height: saved.height, size: saved.size });
+    } catch (error) {
+      if (error instanceof InvalidImageError) { res.status(400).json({ error: error.message }); return; }
+      next(error);
+    }
+  });
 });
 
 export default router;

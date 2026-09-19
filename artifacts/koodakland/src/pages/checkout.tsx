@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useGetCart, useCreateOrder, useListShippingMethods, useValidateDiscount, type ShippingMethod } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { apiErrorMessage } from "@/lib/utils";
+import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { IRAN_PROVINCES } from "@/lib/iran-provinces";
 import { useCartSession } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
@@ -195,7 +195,7 @@ export default function Checkout() {
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex gap-3">
                     <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
-                      {item.product.images[0] && <img src={item.product.images[0]} alt={item.product.nameFa} className="w-full h-full object-cover" />}
+                      {item.product.images[0] && <img src={imageUrl(item.product.images[0], 160)} alt={item.product.nameFa} className="w-full h-full object-cover" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{item.product.nameFa}</p>

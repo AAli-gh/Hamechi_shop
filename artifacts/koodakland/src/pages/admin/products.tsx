@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useListProducts, useListCategories, useDeleteProduct, useCreateProduct, useUpdateProduct, useSetProductVariants, type Product } from "@workspace/api-client-react";
 import { VariantEditor, draftFromVariants, draftToInput, type VariantDraft } from "@/components/admin/VariantEditor";
-import { apiErrorMessage } from "@/lib/utils";
+import { apiErrorMessage, imageUrl } from "@/lib/utils";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
-const EMPTY_FORM = { name: "", nameFa: "", slug: "", price: "", salePrice: "", categoryId: "", stock: "0", brand: "", ageGroup: "", descriptionFa: "", isFeatured: false, isFlashSale: false };
+const EMPTY_FORM = { name: "", nameFa: "", slug: "", price: "", salePrice: "", categoryId: "", stock: "0", brand: "", ageGroup: "", descriptionFa: "", isFeatured: false, isFlashSale: false, images: [] as string[] };
 
 export default function AdminProducts() {
   const { toast } = useToast();
@@ -42,7 +43,7 @@ export default function AdminProducts() {
   const openEdit = (p: Product) => {
     setVariantDraft(draftFromVariants(p.variants)); setHadVariants(p.variants.length > 0);
     setEditId(p.id);
-    setForm({ name: p.name, nameFa: p.nameFa, slug: p.slug, price: String(p.price), salePrice: p.salePrice ? String(p.salePrice) : "", categoryId: String(p.categoryId), stock: String(p.stock), brand: p.brand || "", ageGroup: p.ageGroup || "", descriptionFa: p.descriptionFa || "", isFeatured: p.isFeatured, isFlashSale: p.isFlashSale });
+    setForm({ name: p.name, nameFa: p.nameFa, slug: p.slug, price: String(p.price), salePrice: p.salePrice ? String(p.salePrice) : "", categoryId: String(p.categoryId), stock: String(p.stock), brand: p.brand || "", ageGroup: p.ageGroup || "", descriptionFa: p.descriptionFa || "", isFeatured: p.isFeatured, isFlashSale: p.isFlashSale, images: p.images });
     setDialogOpen(true);
   };
 
@@ -109,7 +110,7 @@ export default function AdminProducts() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted shrink-0">
-                        {p.images[0] && <img src={p.images[0]} alt={p.nameFa} className="w-full h-full object-cover" />}
+                        {p.images[0] && <img src={imageUrl(p.images[0], 160)} alt={p.nameFa} className="w-full h-full object-cover" />}
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium truncate">{p.nameFa}</p>
@@ -148,6 +149,10 @@ export default function AdminProducts() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader><DialogTitle>{editId ? "ویرایش محصول" : "افزودن محصول"}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">تصاویر (اولی تصویر اصلی است)</label>
+              <ImageUpload value={form.images} onChange={(images) => setForm((f) => ({ ...f, images }))} label="افزودن تصویر محصول" />
+            </div>
             {[
               { k: "nameFa", l: "نام فارسی" }, { k: "name", l: "نام انگلیسی" },
               { k: "slug", l: "slug" }, { k: "brand", l: "برند" },

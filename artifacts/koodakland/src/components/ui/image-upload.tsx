@@ -1,159 +1,123 @@
-import { useRef, useState, useCallback } from "react";
-import { Upload, X, Image as ImageIcon, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-
-interface UploadedFile {
-  id: string;
-  url: string;
-  name: string;
-  status: "uploading" | "done" | "error";
-}
+import { useRef, useState } from "react";
+import { Upload, X, Loader2, Star } from "lucide-react";
+import { imageUrl } from "@/lib/utils";
 
 interface ImageUploadProps {
-  value?: string[];
-  onChange?: (urls: string[]) => void;
+  /** Uploaded image URLs; the first one is the main image. */
+  value: string[];
+  onChange: (urls: string[]) => void;
   maxFiles?: number;
-  accept?: string;
-  className?: string;
   label?: string;
 }
+
+type Pending = { id: string; preview: string; name: string };
 
 async function uploadFile(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
-  const res = await fetch("/api/upload", { method: "POST", body: formData });
-  if (!res.ok) throw new Error("Upload failed");
-  const data = await res.json();
+  const res = await fetch("/api/upload", { method: "POST", body: formData, credentials: "same-origin" });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.error || "آپلود انجام نشد");
   return data.url as string;
 }
 
-export function ImageUpload({ value = [], onChange, maxFiles = 5, accept = "image/*", className = "", label = "آپلود تصویر" }: ImageUploadProps) {
-  const [files, setFiles] = useState<UploadedFile[]>(() =>
-    value.map((url, i) => ({ id: `init-${i}`, url, name: url.split("/").pop() || "image", status: "done" as const }))
-  );
+export function ImageUpload({ value, onChange, maxFiles = 8, label = "آپلود تصویر" }: ImageUploadProps) {
+  const [pending, setPending] = useState<Pending[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Uploads finish one by one; keep the latest list so none overwrites another.
+  const latest = useRef(value);
+  latest.current = value;
 
-  const processFiles = useCallback(async (fileList: File[]) => {
-    const toUpload = fileList.slice(0, maxFiles - files.length);
+  const processFiles = async (fileList: File[]) => {
+    const room = maxFiles - value.length - pending.length;
+    const toUpload = fileList.filter((f) => f.type.startsWith("image/")).slice(0, Math.max(0, room));
     if (toUpload.length === 0) return;
+    setErrors([]);
+    const items = toUpload.map((file) => ({ file, id: `${Date.now()}-${Math.random()}`, preview: URL.createObjectURL(file), name: file.name }));
+    setPending((p) => [...p, ...items]);
 
-    const pending: UploadedFile[] = toUpload.map(f => ({
-      id: `${Date.now()}-${f.name}`,
-      url: URL.createObjectURL(f),
-      name: f.name,
-      status: "uploading" as const,
-    }));
-    setFiles(prev => [...prev, ...pending]);
-
-    const updated = [...files];
-    for (const [i, file] of toUpload.entries()) {
+    for (const item of items) {
       try {
-        const url = await uploadFile(file);
-        pending[i].url = url;
-        pending[i].status = "done";
-      } catch {
-        pending[i].status = "error";
+        const url = await uploadFile(item.file);
+        latest.current = [...latest.current, url];
+        onChange(latest.current);
+      } catch (error) {
+        setErrors((e) => [...e, `${item.name}: ${(error as Error).message}`]);
+      } finally {
+        URL.revokeObjectURL(item.preview);
+        setPending((p) => p.filter((x) => x.id !== item.id));
       }
-      setFiles(prev => {
-        const next = prev.map(f => f.id === pending[i].id ? { ...pending[i] } : f);
-        const done = next.filter(f => f.status === "done").map(f => f.url);
-        onChange?.(done);
-        return next;
-      });
-      updated.push(pending[i]);
     }
-  }, [files, maxFiles, onChange]);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
-    processFiles(dropped);
-  }, [processFiles]);
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) processFiles(Array.from(e.target.files));
-    e.target.value = "";
   };
 
-  const remove = (id: string) => {
-    setFiles(prev => {
-      const next = prev.filter(f => f.id !== id);
-      onChange?.(next.filter(f => f.status === "done").map(f => f.url));
-      return next;
-    });
-  };
-
-  const canAdd = files.length < maxFiles;
+  const remove = (url: string) => onChange(value.filter((u) => u !== url));
+  const makeMain = (url: string) => onChange([url, ...value.filter((u) => u !== url)]);
+  const canAdd = value.length + pending.length < maxFiles;
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className="flex flex-col gap-3">
       {canAdd && (
-        <div
-          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+        <button
+          type="button"
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
+          onDrop={(e) => { e.preventDefault(); setDragging(false); processFiles(Array.from(e.dataTransfer.files)); }}
           onClick={() => inputRef.current?.click()}
-          className={`relative flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 select-none
-            ${dragging
-              ? "border-primary bg-orange-50 scale-[1.01] shadow-lg shadow-primary/10"
-              : "border-orange-200 bg-orange-50/40 hover:border-primary/60 hover:bg-orange-50 hover:shadow-sm"
-            }`}
+          className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 border-dashed transition-colors select-none ${
+            dragging ? "border-primary bg-primary/10" : "border-primary/25 bg-primary/5 hover:border-primary/60"
+          }`}
         >
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${dragging ? "bg-primary/20" : "bg-orange-100"}`}>
-            <Upload className={`w-6 h-6 transition-colors ${dragging ? "text-primary" : "text-orange-400"}`} />
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-semibold text-foreground">{label}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">فایل را اینجا رها کنید یا کلیک کنید</p>
-            <p className="text-xs text-muted-foreground">PNG، JPG، WEBP — حداکثر ۵ مگابایت</p>
-          </div>
-          {files.length > 0 && (
-            <p className="text-xs text-muted-foreground">{files.length} از {maxFiles} فایل</p>
-          )}
-          <input ref={inputRef} type="file" accept={accept} multiple className="hidden" onChange={handleInput} />
-        </div>
+          <Upload className="w-6 h-6 text-primary" />
+          <span className="text-sm font-semibold text-foreground">{label}</span>
+          <span className="text-xs text-muted-foreground">فایل را اینجا رها کنید یا کلیک کنید — JPG، PNG، WEBP تا ۵ مگابایت</span>
+          <span className="text-xs text-muted-foreground">{value.length.toLocaleString("fa-IR")} از {maxFiles.toLocaleString("fa-IR")} تصویر</span>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
+            className="hidden"
+            onChange={(e) => { if (e.target.files) processFiles(Array.from(e.target.files)); e.target.value = ""; }}
+          />
+        </button>
       )}
 
-      {files.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          {files.map(f => (
-            <div key={f.id} className="relative group aspect-square rounded-xl overflow-hidden bg-orange-50 border border-orange-100">
-              {f.url && f.status !== "error" ? (
-                <img src={f.url} alt={f.name} className="w-full h-full object-cover" />
+      {errors.length > 0 && (
+        <ul className="text-xs text-destructive flex flex-col gap-0.5" role="alert">
+          {errors.map((e, i) => <li key={i}>{e}</li>)}
+        </ul>
+      )}
+
+      {(value.length > 0 || pending.length > 0) && (
+        <ul className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+          {value.map((url, i) => (
+            <li key={url} className="relative group aspect-square rounded-xl overflow-hidden bg-muted border border-border">
+              <img src={imageUrl(url, 160)} alt="" className="w-full h-full object-cover" />
+              {i === 0 ? (
+                <span className="absolute bottom-1 right-1 text-[10px] font-bold bg-primary text-primary-foreground rounded-full px-2 py-0.5">اصلی</span>
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <ImageIcon className="w-8 h-8 text-orange-200" />
-                </div>
-              )}
-
-              {f.status === "uploading" && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                </div>
-              )}
-              {f.status === "done" && (
-                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <CheckCircle2 className="w-3 h-3 text-white" />
-                </div>
-              )}
-              {f.status === "error" && (
-                <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
-                  <AlertCircle className="w-6 h-6 text-red-500" />
-                </div>
-              )}
-
-              {f.status !== "uploading" && (
-                <button
-                  onClick={e => { e.stopPropagation(); remove(f.id); }}
-                  className="absolute top-1 left-1 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
-                >
-                  <X className="w-3 h-3 text-white" />
+                <button type="button" onClick={() => makeMain(url)} title="تصویر اصلی شود" aria-label="تصویر اصلی شود"
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
+                  <Star className="w-3 h-3" />
                 </button>
               )}
-            </div>
+              <button type="button" onClick={() => remove(url)} title="حذف" aria-label="حذف تصویر"
+                className="absolute top-1 left-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-red-500 transition-opacity">
+                <X className="w-3 h-3" />
+              </button>
+            </li>
           ))}
-        </div>
+          {pending.map((p) => (
+            <li key={p.id} className="relative aspect-square rounded-xl overflow-hidden bg-muted border border-border">
+              <img src={p.preview} alt="" className="w-full h-full object-cover opacity-60" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

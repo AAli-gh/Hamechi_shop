@@ -3,6 +3,7 @@ import { useGetBlogPost } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, ArrowRight } from "lucide-react";
+import { imageUrl } from "@/lib/utils";
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
@@ -35,7 +36,7 @@ export default function BlogPost() {
 
         {post.coverImage && (
           <div className="aspect-video rounded-3xl overflow-hidden mb-8">
-            <img src={post.coverImage} alt={post.titleFa} className="w-full h-full object-cover" />
+            <img src={imageUrl(post.coverImage, 800)} alt={post.titleFa} className="w-full h-full object-cover" />
           </div>
         )}
 

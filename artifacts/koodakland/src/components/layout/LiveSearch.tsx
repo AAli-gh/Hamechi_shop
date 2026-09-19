@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, X, TrendingUp, ArrowLeft, Package } from "lucide-react";
 import { useSearchProducts } from "@workspace/api-client-react";
+import { imageUrl } from "@/lib/utils";
 
 function formatPrice(n: number) {
   return new Intl.NumberFormat("fa-IR").format(n) + " تومان";
@@ -81,7 +82,7 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-orange-50 flex-shrink-0 border border-orange-100">
                         {p.images[0] ? (
                           <img
-                            src={p.images[0]}
+                            src={imageUrl(p.images[0], 160)}
                             alt={p.nameFa}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
@@ -382,7 +383,7 @@ export function MobileSearchModal() {
                       >
                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-orange-50 flex-shrink-0 border border-orange-100">
                           {p.images[0] ? (
-                            <img src={p.images[0]} alt={p.nameFa} className="w-full h-full object-cover" />
+                            <img src={imageUrl(p.images[0], 160)} alt={p.nameFa} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Package className="w-7 h-7 text-orange-200" />

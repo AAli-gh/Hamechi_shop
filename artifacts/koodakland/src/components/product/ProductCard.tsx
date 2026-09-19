@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { useCartSession, useSetCartData } from "@/lib/cart";
-import { apiErrorMessage } from "@/lib/utils";
+import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { useAddToCart } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -66,8 +66,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="relative aspect-square overflow-hidden bg-muted/50 rounded-t-2xl">
           {product.images && product.images.length > 0 ? (
             <img
-              src={product.images[0]}
+              src={imageUrl(product.images[0], 400)}
               alt={product.nameFa}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (

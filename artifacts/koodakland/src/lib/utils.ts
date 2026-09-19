@@ -14,3 +14,13 @@ export function apiErrorMessage(error: unknown, fallback: string): string {
   }
   return fallback;
 }
+
+/**
+ * A resized version of an uploaded image (served as WebP by the API).
+ * Other URLs, and SVGs which scale by themselves, are returned unchanged.
+ */
+export function imageUrl(url: string | null | undefined, width: 160 | 400 | 800): string | undefined {
+  if (!url) return undefined;
+  if (!url.startsWith("/api/uploads/") || url.endsWith(".svg")) return url;
+  return `${url}?w=${width}`;
+}
