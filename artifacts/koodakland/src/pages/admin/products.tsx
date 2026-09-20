@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useListProducts, useListCategories, useDeleteProduct, useCreateProduct, useUpdateProduct, useSetProductVariants, type Product } from "@workspace/api-client-react";
+import { useListProducts, useListCategories, useDeleteProduct, useCreateProduct, useUpdateProduct, useSetProductVariants, type Product, type ProductSpec } from "@workspace/api-client-react";
 import { VariantEditor, draftFromVariants, draftToInput, type VariantDraft } from "@/components/admin/VariantEditor";
 import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { SpecEditor, cleanSpecs } from "@/components/admin/SpecEditor";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
-const EMPTY_FORM = { name: "", nameFa: "", slug: "", price: "", salePrice: "", categoryId: "", stock: "0", brand: "", ageGroup: "", descriptionFa: "", isFeatured: false, isFlashSale: false, images: [] as string[] };
+const EMPTY_FORM = { name: "", nameFa: "", slug: "", price: "", salePrice: "", categoryId: "", stock: "0", brand: "", ageGroup: "", descriptionFa: "", isFeatured: false, isFlashSale: false, images: [] as string[], specs: [] as ProductSpec[] };
 
 export default function AdminProducts() {
   const { toast } = useToast();
@@ -43,7 +44,7 @@ export default function AdminProducts() {
   const openEdit = (p: Product) => {
     setVariantDraft(draftFromVariants(p.variants)); setHadVariants(p.variants.length > 0);
     setEditId(p.id);
-    setForm({ name: p.name, nameFa: p.nameFa, slug: p.slug, price: String(p.price), salePrice: p.salePrice ? String(p.salePrice) : "", categoryId: String(p.categoryId), stock: String(p.stock), brand: p.brand || "", ageGroup: p.ageGroup || "", descriptionFa: p.descriptionFa || "", isFeatured: p.isFeatured, isFlashSale: p.isFlashSale, images: p.images });
+    setForm({ name: p.name, nameFa: p.nameFa, slug: p.slug, price: String(p.price), salePrice: p.salePrice ? String(p.salePrice) : "", categoryId: String(p.categoryId), stock: String(p.stock), brand: p.brand || "", ageGroup: p.ageGroup || "", descriptionFa: p.descriptionFa || "", isFeatured: p.isFeatured, isFlashSale: p.isFlashSale, images: p.images, specs: p.specs });
     setDialogOpen(true);
   };
 
@@ -52,7 +53,7 @@ export default function AdminProducts() {
     if ("error" in variantsInput) { toast({ title: "تنوع‌ها", description: variantsInput.error, variant: "destructive" }); return; }
     if (!form.categoryId) { toast({ title: "دسته‌بندی را انتخاب کنید", variant: "destructive" }); return; }
 
-    const payload: any = { ...form, price: Number(form.price), salePrice: form.salePrice ? Number(form.salePrice) : null, categoryId: Number(form.categoryId), stock: Number(form.stock) };
+    const payload: any = { ...form, specs: cleanSpecs(form.specs), price: Number(form.price), salePrice: form.salePrice ? Number(form.salePrice) : null, categoryId: Number(form.categoryId), stock: Number(form.stock) };
     setSaving(true);
     try {
       const product = editId
@@ -181,6 +182,11 @@ export default function AdminProducts() {
             </div>
             <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.isFeatured} onChange={e => setForm(f => ({ ...f, isFeatured: e.target.checked }))} /><span className="text-sm">محصول ویژه</span></label>
             <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.isFlashSale} onChange={e => setForm(f => ({ ...f, isFlashSale: e.target.checked }))} /><span className="text-sm">حراج زمان‌دار</span></label>
+            <div className="col-span-2 border-t border-border/50 pt-4">
+              <h3 className="font-bold text-sm mb-1">مشخصات فنی</h3>
+              <p className="text-xs text-muted-foreground mb-3">در صفحه‌ی محصول به صورت جدول نمایش داده می‌شود.</p>
+              <SpecEditor specs={form.specs} onChange={(specs) => setForm((f) => ({ ...f, specs }))} />
+            </div>
             <div className="col-span-2 border-t border-border/50 pt-4">
               <h3 className="font-bold text-sm mb-1">تنوع‌ها (رنگ، سایز، حافظه و ...)</h3>
               <p className="text-xs text-muted-foreground mb-3">برای کالاهای بدون گزینه خالی بگذارید. با داشتن تنوع، موجودی هر ترکیب جداگانه ثبت می‌شود.</p>

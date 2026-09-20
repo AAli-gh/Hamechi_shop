@@ -5,6 +5,7 @@
  * Bazarcheh general store API
  * OpenAPI spec version: 0.1.0
  */
+import type { ProductSpec } from "./productSpec";
 
 export interface ProductUpdate {
   name?: string;
@@ -20,6 +21,8 @@ export interface ProductUpdate {
   sku?: string;
   brand?: string;
   ageGroup?: string;
+  /** @maxItems 40 */
+  specs?: ProductSpec[];
   isFeatured?: boolean;
   isFlashSale?: boolean;
   /** @nullable */

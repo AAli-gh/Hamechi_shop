@@ -76,6 +76,7 @@ export async function enrichProducts(products: ProductRow[]) {
       weight: product.weight ? Number(product.weight) : null,
       images: (product.images as string[]) || [],
       tags: (product.tags as string[]) || [],
+      specs: product.specs ?? [],
       categoryName: categoryNames.get(product.categoryId) ?? null,
       avgRating: stats?.avgRating ? Number(stats.avgRating) : null,
       reviewCount: Number(stats?.count ?? 0),

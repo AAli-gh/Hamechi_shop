@@ -5,6 +5,7 @@
  * Bazarcheh general store API
  * OpenAPI spec version: 0.1.0
  */
+import type { ProductSpec } from "./productSpec";
 import type { ProductVariant } from "./productVariant";
 
 export interface Product {
@@ -41,5 +42,6 @@ export interface Product {
   avgRating?: number | null;
   reviewCount: number;
   createdAt: string;
+  specs: ProductSpec[];
   variants: ProductVariant[];
 }

@@ -2,6 +2,8 @@ import { pgTable, serial, text, integer, numeric, boolean, timestamp, jsonb } fr
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
+export type ProductSpec = { name: string; value: string };
+
 export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -19,6 +21,8 @@ export const productsTable = pgTable("products", {
   ageGroup: text("age_group"),
   weight: numeric("weight", { precision: 8, scale: 2 }),
   tags: jsonb("tags").default([]),
+  // Ordered technical specifications, e.g. [{name: "حافظه", value: "۱۲۸ گیگابایت"}].
+  specs: jsonb("specs").$type<ProductSpec[]>().notNull().default([]),
   gender: text("gender"),
   isFeatured: boolean("is_featured").default(false).notNull(),
   isFlashSale: boolean("is_flash_sale").default(false).notNull(),

@@ -224,6 +224,20 @@ export default function ProductPage() {
                 <p className="text-muted-foreground text-sm leading-relaxed">{product.descriptionFa}</p>
               </div>
             )}
+
+            {product.specs.length > 0 && (
+              <div className="mt-2">
+                <h3 className="font-bold mb-2">مشخصات فنی</h3>
+                <dl className="rounded-2xl border border-border/50 overflow-hidden text-sm">
+                  {product.specs.map((spec, i) => (
+                    <div key={`${spec.name}-${i}`} className={`flex gap-4 px-4 py-2.5 ${i % 2 ? "bg-muted/30" : ""}`}>
+                      <dt className="text-muted-foreground w-32 shrink-0">{spec.name}</dt>
+                      <dd className="font-medium">{spec.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
           </div>
         </div>
 

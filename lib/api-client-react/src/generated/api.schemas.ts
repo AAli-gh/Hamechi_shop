@@ -9,6 +9,19 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface ProductSpec {
+  /**
+   * @minLength 1
+   * @maxLength 60
+   */
+  name: string;
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  value: string;
+}
+
 export interface VariantOption {
   /**
    * @minLength 1
@@ -81,6 +94,7 @@ export interface Product {
   avgRating?: number | null;
   reviewCount: number;
   createdAt: string;
+  specs: ProductSpec[];
   variants: ProductVariant[];
 }
 
@@ -130,6 +144,8 @@ export interface ProductInput {
   ageGroup?: string;
   weight?: number;
   tags?: string[];
+  /** @maxItems 40 */
+  specs?: ProductSpec[];
   isFeatured?: boolean;
   isFlashSale?: boolean;
   /** @nullable */
@@ -150,6 +166,8 @@ export interface ProductUpdate {
   sku?: string;
   brand?: string;
   ageGroup?: string;
+  /** @maxItems 40 */
+  specs?: ProductSpec[];
   isFeatured?: boolean;
   isFlashSale?: boolean;
   /** @nullable */

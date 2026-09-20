@@ -39,6 +39,10 @@ export const ListProductsQueryParams = zod.object({
   ageGroup: zod.coerce.string().optional(),
 });
 
+export const listProductsResponseProductsItemSpecsItemNameMax = 60;
+
+export const listProductsResponseProductsItemSpecsItemValueMax = 200;
+
 export const listProductsResponseProductsItemVariantsItemOptionsItemNameMax = 30;
 
 export const listProductsResponseProductsItemVariantsItemOptionsItemValueMax = 50;
@@ -69,6 +73,18 @@ export const ListProductsResponse = zod.object({
       avgRating: zod.number().nullish(),
       reviewCount: zod.number(),
       createdAt: zod.string(),
+      specs: zod.array(
+        zod.object({
+          name: zod
+            .string()
+            .min(1)
+            .max(listProductsResponseProductsItemSpecsItemNameMax),
+          value: zod
+            .string()
+            .min(1)
+            .max(listProductsResponseProductsItemSpecsItemValueMax),
+        }),
+      ),
       variants: zod.array(
         zod
           .object({
@@ -120,6 +136,12 @@ export const ListProductsResponse = zod.object({
 /**
  * @summary Create a new product (admin)
  */
+export const createProductBodySpecsItemNameMax = 60;
+
+export const createProductBodySpecsItemValueMax = 200;
+
+export const createProductBodySpecsMax = 40;
+
 export const CreateProductBody = zod.object({
   name: zod.string(),
   nameFa: zod.string(),
@@ -136,6 +158,15 @@ export const CreateProductBody = zod.object({
   ageGroup: zod.string().optional(),
   weight: zod.number().optional(),
   tags: zod.array(zod.string()).optional(),
+  specs: zod
+    .array(
+      zod.object({
+        name: zod.string().min(1).max(createProductBodySpecsItemNameMax),
+        value: zod.string().min(1).max(createProductBodySpecsItemValueMax),
+      }),
+    )
+    .max(createProductBodySpecsMax)
+    .optional(),
   isFeatured: zod.boolean().optional(),
   isFlashSale: zod.boolean().optional(),
   flashSaleEndsAt: zod.string().nullish(),
@@ -144,6 +175,10 @@ export const CreateProductBody = zod.object({
 /**
  * @summary Get featured products
  */
+export const getFeaturedProductsResponseSpecsItemNameMax = 60;
+
+export const getFeaturedProductsResponseSpecsItemValueMax = 200;
+
 export const getFeaturedProductsResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getFeaturedProductsResponseVariantsItemOptionsItemValueMax = 50;
@@ -172,6 +207,18 @@ export const GetFeaturedProductsResponseItem = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod
+        .string()
+        .min(1)
+        .max(getFeaturedProductsResponseSpecsItemNameMax),
+      value: zod
+        .string()
+        .min(1)
+        .max(getFeaturedProductsResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -217,6 +264,10 @@ export const GetFeaturedProductsResponse = zod.array(
 /**
  * @summary Get flash sale products
  */
+export const getFlashSaleProductsResponseSpecsItemNameMax = 60;
+
+export const getFlashSaleProductsResponseSpecsItemValueMax = 200;
+
 export const getFlashSaleProductsResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getFlashSaleProductsResponseVariantsItemOptionsItemValueMax = 50;
@@ -245,6 +296,18 @@ export const GetFlashSaleProductsResponseItem = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod
+        .string()
+        .min(1)
+        .max(getFlashSaleProductsResponseSpecsItemNameMax),
+      value: zod
+        .string()
+        .min(1)
+        .max(getFlashSaleProductsResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -292,6 +355,10 @@ export const GetFlashSaleProductsResponse = zod.array(
 /**
  * @summary Get new arrival products
  */
+export const getNewArrivalsResponseSpecsItemNameMax = 60;
+
+export const getNewArrivalsResponseSpecsItemValueMax = 200;
+
 export const getNewArrivalsResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getNewArrivalsResponseVariantsItemOptionsItemValueMax = 50;
@@ -320,6 +387,12 @@ export const GetNewArrivalsResponseItem = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(getNewArrivalsResponseSpecsItemNameMax),
+      value: zod.string().min(1).max(getNewArrivalsResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -361,6 +434,10 @@ export const GetNewArrivalsResponse = zod.array(GetNewArrivalsResponseItem);
 /**
  * @summary Get best seller products
  */
+export const getBestSellersResponseSpecsItemNameMax = 60;
+
+export const getBestSellersResponseSpecsItemValueMax = 200;
+
 export const getBestSellersResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getBestSellersResponseVariantsItemOptionsItemValueMax = 50;
@@ -389,6 +466,12 @@ export const GetBestSellersResponseItem = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(getBestSellersResponseSpecsItemNameMax),
+      value: zod.string().min(1).max(getBestSellersResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -434,6 +517,10 @@ export const GetProductBySlugParams = zod.object({
   slug: zod.coerce.string(),
 });
 
+export const getProductBySlugResponseSpecsItemNameMax = 60;
+
+export const getProductBySlugResponseSpecsItemValueMax = 200;
+
 export const getProductBySlugResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getProductBySlugResponseVariantsItemOptionsItemValueMax = 50;
@@ -462,6 +549,12 @@ export const GetProductBySlugResponse = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(getProductBySlugResponseSpecsItemNameMax),
+      value: zod.string().min(1).max(getProductBySlugResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -551,6 +644,10 @@ export const SetProductVariantsBody = zod.object({
     .max(setProductVariantsBodyVariantsMax),
 });
 
+export const setProductVariantsResponseSpecsItemNameMax = 60;
+
+export const setProductVariantsResponseSpecsItemValueMax = 200;
+
 export const setProductVariantsResponseVariantsItemOptionsItemNameMax = 30;
 
 export const setProductVariantsResponseVariantsItemOptionsItemValueMax = 50;
@@ -579,6 +676,15 @@ export const SetProductVariantsResponse = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(setProductVariantsResponseSpecsItemNameMax),
+      value: zod
+        .string()
+        .min(1)
+        .max(setProductVariantsResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -623,6 +729,10 @@ export const GetProductParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const getProductResponseSpecsItemNameMax = 60;
+
+export const getProductResponseSpecsItemValueMax = 200;
+
 export const getProductResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getProductResponseVariantsItemOptionsItemValueMax = 50;
@@ -651,6 +761,12 @@ export const GetProductResponse = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(getProductResponseSpecsItemNameMax),
+      value: zod.string().min(1).max(getProductResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -695,6 +811,12 @@ export const UpdateProductParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const updateProductBodySpecsItemNameMax = 60;
+
+export const updateProductBodySpecsItemValueMax = 200;
+
+export const updateProductBodySpecsMax = 40;
+
 export const UpdateProductBody = zod.object({
   name: zod.string().optional(),
   nameFa: zod.string().optional(),
@@ -708,10 +830,23 @@ export const UpdateProductBody = zod.object({
   sku: zod.string().optional(),
   brand: zod.string().optional(),
   ageGroup: zod.string().optional(),
+  specs: zod
+    .array(
+      zod.object({
+        name: zod.string().min(1).max(updateProductBodySpecsItemNameMax),
+        value: zod.string().min(1).max(updateProductBodySpecsItemValueMax),
+      }),
+    )
+    .max(updateProductBodySpecsMax)
+    .optional(),
   isFeatured: zod.boolean().optional(),
   isFlashSale: zod.boolean().optional(),
   flashSaleEndsAt: zod.string().nullish(),
 });
+
+export const updateProductResponseSpecsItemNameMax = 60;
+
+export const updateProductResponseSpecsItemValueMax = 200;
 
 export const updateProductResponseVariantsItemOptionsItemNameMax = 30;
 
@@ -741,6 +876,12 @@ export const UpdateProductResponse = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(updateProductResponseSpecsItemNameMax),
+      value: zod.string().min(1).max(updateProductResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -792,6 +933,10 @@ export const GetRelatedProductsParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const getRelatedProductsResponseSpecsItemNameMax = 60;
+
+export const getRelatedProductsResponseSpecsItemValueMax = 200;
+
 export const getRelatedProductsResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getRelatedProductsResponseVariantsItemOptionsItemValueMax = 50;
@@ -820,6 +965,15 @@ export const GetRelatedProductsResponseItem = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod.string().min(1).max(getRelatedProductsResponseSpecsItemNameMax),
+      value: zod
+        .string()
+        .min(1)
+        .max(getRelatedProductsResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({
@@ -933,6 +1087,10 @@ export const SearchProductsQueryParams = zod.object({
   limit: zod.coerce.number().optional(),
 });
 
+export const searchProductsResponseProductsItemSpecsItemNameMax = 60;
+
+export const searchProductsResponseProductsItemSpecsItemValueMax = 200;
+
 export const searchProductsResponseProductsItemVariantsItemOptionsItemNameMax = 30;
 
 export const searchProductsResponseProductsItemVariantsItemOptionsItemValueMax = 50;
@@ -963,6 +1121,18 @@ export const SearchProductsResponse = zod.object({
       avgRating: zod.number().nullish(),
       reviewCount: zod.number(),
       createdAt: zod.string(),
+      specs: zod.array(
+        zod.object({
+          name: zod
+            .string()
+            .min(1)
+            .max(searchProductsResponseProductsItemSpecsItemNameMax),
+          value: zod
+            .string()
+            .min(1)
+            .max(searchProductsResponseProductsItemSpecsItemValueMax),
+        }),
+      ),
       variants: zod.array(
         zod
           .object({
@@ -1029,6 +1199,10 @@ export const GetCartQueryParams = zod.object({
   sessionId: zod.coerce.string().optional(),
 });
 
+export const getCartResponseItemsItemProductSpecsItemNameMax = 60;
+
+export const getCartResponseItemsItemProductSpecsItemValueMax = 200;
+
 export const getCartResponseItemsItemProductVariantsItemOptionsItemNameMax = 30;
 
 export const getCartResponseItemsItemProductVariantsItemOptionsItemValueMax = 50;
@@ -1064,6 +1238,18 @@ export const GetCartResponse = zod.object({
         avgRating: zod.number().nullish(),
         reviewCount: zod.number(),
         createdAt: zod.string(),
+        specs: zod.array(
+          zod.object({
+            name: zod
+              .string()
+              .min(1)
+              .max(getCartResponseItemsItemProductSpecsItemNameMax),
+            value: zod
+              .string()
+              .min(1)
+              .max(getCartResponseItemsItemProductSpecsItemValueMax),
+          }),
+        ),
         variants: zod.array(
           zod
             .object({
@@ -1138,6 +1324,10 @@ export const AddToCartBody = zod.object({
   sessionId: zod.string(),
 });
 
+export const addToCartResponseItemsItemProductSpecsItemNameMax = 60;
+
+export const addToCartResponseItemsItemProductSpecsItemValueMax = 200;
+
 export const addToCartResponseItemsItemProductVariantsItemOptionsItemNameMax = 30;
 
 export const addToCartResponseItemsItemProductVariantsItemOptionsItemValueMax = 50;
@@ -1173,6 +1363,18 @@ export const AddToCartResponse = zod.object({
         avgRating: zod.number().nullish(),
         reviewCount: zod.number(),
         createdAt: zod.string(),
+        specs: zod.array(
+          zod.object({
+            name: zod
+              .string()
+              .min(1)
+              .max(addToCartResponseItemsItemProductSpecsItemNameMax),
+            value: zod
+              .string()
+              .min(1)
+              .max(addToCartResponseItemsItemProductSpecsItemValueMax),
+          }),
+        ),
         variants: zod.array(
           zod
             .object({
@@ -1249,6 +1451,10 @@ export const UpdateCartItemBody = zod.object({
   quantity: zod.number().min(1).max(updateCartItemBodyQuantityMax),
 });
 
+export const updateCartItemResponseItemsItemProductSpecsItemNameMax = 60;
+
+export const updateCartItemResponseItemsItemProductSpecsItemValueMax = 200;
+
 export const updateCartItemResponseItemsItemProductVariantsItemOptionsItemNameMax = 30;
 
 export const updateCartItemResponseItemsItemProductVariantsItemOptionsItemValueMax = 50;
@@ -1284,6 +1490,18 @@ export const UpdateCartItemResponse = zod.object({
         avgRating: zod.number().nullish(),
         reviewCount: zod.number(),
         createdAt: zod.string(),
+        specs: zod.array(
+          zod.object({
+            name: zod
+              .string()
+              .min(1)
+              .max(updateCartItemResponseItemsItemProductSpecsItemNameMax),
+            value: zod
+              .string()
+              .min(1)
+              .max(updateCartItemResponseItemsItemProductSpecsItemValueMax),
+          }),
+        ),
         variants: zod.array(
           zod
             .object({
@@ -1354,6 +1572,10 @@ export const RemoveCartItemQueryParams = zod.object({
   sessionId: zod.coerce.string(),
 });
 
+export const removeCartItemResponseItemsItemProductSpecsItemNameMax = 60;
+
+export const removeCartItemResponseItemsItemProductSpecsItemValueMax = 200;
+
 export const removeCartItemResponseItemsItemProductVariantsItemOptionsItemNameMax = 30;
 
 export const removeCartItemResponseItemsItemProductVariantsItemOptionsItemValueMax = 50;
@@ -1389,6 +1611,18 @@ export const RemoveCartItemResponse = zod.object({
         avgRating: zod.number().nullish(),
         reviewCount: zod.number(),
         createdAt: zod.string(),
+        specs: zod.array(
+          zod.object({
+            name: zod
+              .string()
+              .min(1)
+              .max(removeCartItemResponseItemsItemProductSpecsItemNameMax),
+            value: zod
+              .string()
+              .min(1)
+              .max(removeCartItemResponseItemsItemProductSpecsItemValueMax),
+          }),
+        ),
         variants: zod.array(
           zod
             .object({
@@ -1455,6 +1689,10 @@ export const GetWishlistQueryParams = zod.object({
   userId: zod.coerce.number().optional(),
 });
 
+export const getWishlistResponseProductSpecsItemNameMax = 60;
+
+export const getWishlistResponseProductSpecsItemValueMax = 200;
+
 export const getWishlistResponseProductVariantsItemOptionsItemNameMax = 30;
 
 export const getWishlistResponseProductVariantsItemOptionsItemValueMax = 50;
@@ -1487,6 +1725,18 @@ export const GetWishlistResponseItem = zod.object({
     avgRating: zod.number().nullish(),
     reviewCount: zod.number(),
     createdAt: zod.string(),
+    specs: zod.array(
+      zod.object({
+        name: zod
+          .string()
+          .min(1)
+          .max(getWishlistResponseProductSpecsItemNameMax),
+        value: zod
+          .string()
+          .min(1)
+          .max(getWishlistResponseProductSpecsItemValueMax),
+      }),
+    ),
     variants: zod.array(
       zod
         .object({
@@ -2184,6 +2434,10 @@ export const GetRecentOrdersResponse = zod.array(GetRecentOrdersResponseItem);
 /**
  * @summary Get low stock products
  */
+export const getLowStockProductsResponseSpecsItemNameMax = 60;
+
+export const getLowStockProductsResponseSpecsItemValueMax = 200;
+
 export const getLowStockProductsResponseVariantsItemOptionsItemNameMax = 30;
 
 export const getLowStockProductsResponseVariantsItemOptionsItemValueMax = 50;
@@ -2212,6 +2466,18 @@ export const GetLowStockProductsResponseItem = zod.object({
   avgRating: zod.number().nullish(),
   reviewCount: zod.number(),
   createdAt: zod.string(),
+  specs: zod.array(
+    zod.object({
+      name: zod
+        .string()
+        .min(1)
+        .max(getLowStockProductsResponseSpecsItemNameMax),
+      value: zod
+        .string()
+        .min(1)
+        .max(getLowStockProductsResponseSpecsItemValueMax),
+    }),
+  ),
   variants: zod.array(
     zod
       .object({

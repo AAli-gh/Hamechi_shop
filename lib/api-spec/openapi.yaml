@@ -1150,8 +1150,16 @@ components:
         avgRating: { type: ["number", "null"] }
         reviewCount: { type: integer }
         createdAt: { type: string }
+        specs: { type: array, items: { $ref: "#/components/schemas/ProductSpec" } }
         variants: { type: array, items: { $ref: "#/components/schemas/ProductVariant" } }
-      required: [id, name, nameFa, slug, price, images, categoryId, stock, isFeatured, isFlashSale, reviewCount, createdAt, variants]
+      required: [id, name, nameFa, slug, price, images, categoryId, stock, isFeatured, isFlashSale, reviewCount, createdAt, specs, variants]
+
+    ProductSpec:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 60 }
+        value: { type: string, minLength: 1, maxLength: 200 }
+      required: [name, value]
 
     ProductVariant:
       type: object
@@ -1217,6 +1225,7 @@ components:
         ageGroup: { type: string }
         weight: { type: number }
         tags: { type: array, items: { type: string } }
+        specs: { type: array, items: { $ref: "#/components/schemas/ProductSpec" }, maxItems: 40 }
         isFeatured: { type: boolean }
         isFlashSale: { type: boolean }
         flashSaleEndsAt: { type: ["string", "null"] }
@@ -1237,6 +1246,7 @@ components:
         sku: { type: string }
         brand: { type: string }
         ageGroup: { type: string }
+        specs: { type: array, items: { $ref: "#/components/schemas/ProductSpec" }, maxItems: 40 }
         isFeatured: { type: boolean }
         isFlashSale: { type: boolean }
         flashSaleEndsAt: { type: ["string", "null"] }

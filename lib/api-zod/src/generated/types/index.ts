@@ -45,6 +45,7 @@ export * from "./otpResponse";
 export * from "./product";
 export * from "./productInput";
 export * from "./productListResponse";
+export * from "./productSpec";
 export * from "./productUpdate";
 export * from "./productVariant";
 export * from "./productVariantInput";
