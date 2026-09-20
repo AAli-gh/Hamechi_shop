@@ -3,6 +3,7 @@ import { eq, and, gte, lte, sql, desc, asc, inArray } from "drizzle-orm";
 import { db, productsTable, productVariantsTable, cartItemsTable, categoriesTable } from "@workspace/db";
 import { enrichProduct, enrichProducts, syncProductStock } from "../lib/products";
 import { productSearchCondition } from "../lib/search";
+import { onStockChanged } from "../lib/notifications";
 import {
   ListProductsQueryParams,
   SetProductVariantsBody,
@@ -144,6 +145,7 @@ router.put("/products/:id/variants", requireAuth, requireAdmin, async (req, res)
   if (!ok) { res.status(400).json({ error: "تنوع انتخاب‌شده متعلق به این محصول نیست" }); return; }
 
   const [updated] = await db.select().from(productsTable).where(eq(productsTable.id, productId));
+  onStockChanged(productId, product.stock, updated.stock);
   res.json(await enrichProduct(updated));
 });
 
@@ -168,8 +170,10 @@ router.patch("/products/:id", requireAuth, requireAdmin, async (req, res): Promi
   if (Number(variantCount?.count ?? 0) > 0) delete updateData.stock;
   if (parsed.data.images) updateData.images = parsed.data.images;
   if (parsed.data.flashSaleEndsAt) updateData.flashSaleEndsAt = new Date(parsed.data.flashSaleEndsAt);
+  const [before] = await db.select({ stock: productsTable.stock }).from(productsTable).where(eq(productsTable.id, id));
   const [product] = await db.update(productsTable).set(updateData).where(eq(productsTable.id, id)).returning();
   if (!product) { res.status(404).json({ error: "Product not found" }); return; }
+  onStockChanged(id, before?.stock ?? 0, product.stock);
   res.json(await enrichProduct(product));
 });
 

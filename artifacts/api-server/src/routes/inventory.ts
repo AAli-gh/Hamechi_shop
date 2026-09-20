@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
-import { db, productsTable, productVariantsTable, categoriesTable, stockNotificationsTable } from "@workspace/db";
+import { db, productsTable, productVariantsTable, categoriesTable } from "@workspace/db";
 import { eq, lte, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middleware/auth";
+import { onStockChanged } from "../lib/notifications";
 
 const router: IRouter = Router();
 router.use("/inventory", requireAuth, requireAdmin);
@@ -56,11 +57,7 @@ router.patch("/inventory/:id/stock", async (req, res): Promise<void> => {
   const [updated] = await db.update(productsTable).set({ stock }).where(eq(productsTable.id, id)).returning();
   if (!updated) { res.status(404).json({ error: "Product not found" }); return; }
 
-  if (before && before.stock === 0 && stock > 0) {
-    await db.update(stockNotificationsTable)
-      .set({ isNotified: true, notifiedAt: new Date() })
-      .where(eq(stockNotificationsTable.productId, id));
-  }
+  onStockChanged(id, before?.stock ?? 0, updated.stock);
 
   res.json(updated);
 });
@@ -72,11 +69,7 @@ router.post("/inventory/bulk-restock", async (req, res) => {
       if (await hasVariants(id)) return [];
       const [before] = await db.select({ stock: productsTable.stock }).from(productsTable).where(eq(productsTable.id, id));
       const result = await db.update(productsTable).set({ stock }).where(eq(productsTable.id, id)).returning();
-      if (before && before.stock === 0 && stock > 0) {
-        await db.update(stockNotificationsTable)
-          .set({ isNotified: true, notifiedAt: new Date() })
-          .where(eq(stockNotificationsTable.productId, id));
-      }
+      if (result[0]) onStockChanged(id, before?.stock ?? 0, result[0].stock);
       return result;
     })
   );
