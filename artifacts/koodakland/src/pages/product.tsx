@@ -14,6 +14,7 @@ import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck, Heart } from "l
 import { useWishlist } from "@/lib/wishlist";
 import { StockNotifyForm } from "@/components/product/StockNotifyForm";
 import { VariantPicker, useVariantSelection } from "@/components/product/VariantPicker";
+import { useSEO } from "@/hooks/useSEO";
 
 export default function ProductPage() {
   const [, params] = useRoute("/product/:slug");
@@ -44,6 +45,37 @@ export default function ProductPage() {
   useEffect(() => {
     setQuantity((q) => Math.max(1, Math.min(q, availableStock || 1)));
   }, [availableStock]);
+
+  // Search engines and messaging apps read these from the rendered page.
+  const seoPrice = shown ? (shown.salePrice ?? shown.price) : 0;
+  const jsonLd = useMemo(() => (product ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.nameFa,
+    description: product.descriptionFa ?? undefined,
+    image: product.images.map((src) => new URL(src, window.location.origin).href),
+    sku: product.sku ?? undefined,
+    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    category: product.categoryName ?? undefined,
+    aggregateRating: product.reviewCount > 0 && product.avgRating
+      ? { "@type": "AggregateRating", ratingValue: product.avgRating, reviewCount: product.reviewCount }
+      : undefined,
+    offers: {
+      "@type": "Offer",
+      price: seoPrice,
+      priceCurrency: "IRR",
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      url: window.location.href,
+    },
+  } : undefined), [product, seoPrice]);
+
+  useSEO({
+    title: product?.nameFa,
+    description: product?.descriptionFa ?? undefined,
+    image: product?.images[0],
+    type: "product",
+    jsonLd,
+  });
 
   const { data: related } = useGetRelatedProducts(product?.id ?? 0, {
     query: { enabled: !!product?.id, queryKey: ["related", product?.id] }

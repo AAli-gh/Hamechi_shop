@@ -15,11 +15,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 const MAX_PRICE = 100000000;
 
 export default function Shop() {
-  useSEO({
-    title: "فروشگاه",
-    description: "خرید آنلاین همه‌ی کالاها با بهترین قیمت. فیلتر پیشرفته بر اساس دسته‌بندی، قیمت و موجودی.",
-    keywords: "فروشگاه اینترنتی، خرید آنلاین، قیمت کالا، بازارچه",
-  });
   const search = useSearch();
   const params = new URLSearchParams(search);
   const priceRangeFromUrl = () => [
@@ -46,6 +41,15 @@ export default function Shop() {
   const categories = categoriesData || [];
 
   const searchQuery = (params.get("q") || "").trim();
+  const activeCategory = categories.find((c) => c.slug === selectedCategory);
+
+  useSEO({
+    title: searchQuery ? `جستجوی «${searchQuery}»` : activeCategory ? activeCategory.nameFa : "فروشگاه",
+    description: activeCategory
+      ? `خرید اینترنتی ${activeCategory.nameFa} با بهترین قیمت و ضمانت اصالت کالا در بازارچه.`
+      : "خرید آنلاین همه‌ی کالاها با بهترین قیمت. فیلتر پیشرفته بر اساس دسته‌بندی، قیمت و موجودی.",
+    keywords: "فروشگاه اینترنتی، خرید آنلاین، قیمت کالا، بازارچه",
+  });
 
   const { data, isLoading } = useListProducts({
     q: searchQuery || undefined,

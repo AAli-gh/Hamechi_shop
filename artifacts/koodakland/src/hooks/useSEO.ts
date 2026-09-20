@@ -12,7 +12,7 @@ interface SEOProps {
 
 const SITE_NAME = "بازارچه";
 const DEFAULT_DESCRIPTION = "بازارچه، فروشگاه اینترنتی همه‌چیز؛ کالای دیجیتال، مد و پوشاک، خانه و آشپزخانه، زیبایی و سلامت، ورزش و سفر با ضمانت اصالت و ارسال سریع.";
-const DEFAULT_IMAGE = "/og-image.png";
+const DEFAULT_IMAGE = "/opengraph.jpg";
 
 function setMeta(name: string, content: string, prop = false) {
   const attr = prop ? "property" : "name";

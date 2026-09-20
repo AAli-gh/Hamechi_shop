@@ -4,11 +4,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, ArrowRight } from "lucide-react";
 import { imageUrl } from "@/lib/utils";
+import { useSEO } from "@/hooks/useSEO";
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
   const slug = params?.slug || "";
   const { data: post, isLoading } = useGetBlogPost(slug, { query: { enabled: !!slug, queryKey: ["blog-post", slug] } });
+
+  useSEO({
+    title: post?.titleFa,
+    description: post?.excerptFa ?? undefined,
+    image: post?.coverImage ?? undefined,
+    type: "article",
+    jsonLd: post ? {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.titleFa,
+      description: post.excerptFa ?? undefined,
+      image: post.coverImage ? new URL(post.coverImage, window.location.origin).href : undefined,
+      author: { "@type": "Organization", name: post.authorName },
+      publisher: { "@type": "Organization", name: "بازارچه" },
+      datePublished: post.createdAt,
+    } : undefined,
+  });
 
   if (isLoading) return (
     <div className="container mx-auto px-4 py-8 max-w-3xl" dir="rtl">

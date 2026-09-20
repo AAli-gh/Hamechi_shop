@@ -8,7 +8,9 @@ import router from "./routes";
 import { logger } from "./lib/logger";
 import { isDevAuth } from "./middleware/auth";
 import { applyRateLimits } from "./middlewares/rateLimits";
+import path from "path";
 import { UPLOADS_DIR, resizedImages } from "./lib/images";
+import { serveWebApp } from "./lib/webApp";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
@@ -76,5 +78,8 @@ if (!isDevAuth) {
 app.use("/api/uploads", resizedImages, express.static(UPLOADS_DIR, { maxAge: "30d", immutable: true, dotfiles: "ignore" }));
 
 app.use("/api", router);
+
+// Optionally serve the built storefront with per-page meta tags (see lib/webApp.ts).
+if (process.env.SERVE_WEB) serveWebApp(app, path.resolve(process.env.SERVE_WEB));
 
 export default app;
