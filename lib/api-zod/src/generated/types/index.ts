@@ -52,6 +52,7 @@ export * from "./productVariantInput";
 export * from "./productVariantsInput";
 export * from "./registerInput";
 export * from "./removeCartItemParams";
+export * from "./returnRequestInput";
 export * from "./review";
 export * from "./reviewInput";
 export * from "./salesChartPoint";

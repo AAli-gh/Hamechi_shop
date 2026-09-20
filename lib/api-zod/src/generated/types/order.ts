@@ -28,6 +28,10 @@ export interface Order {
   trackingCode?: string | null;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  returnRequestedAt?: string | null;
+  /** @nullable */
+  returnReason?: string | null;
   createdAt: string;
   updatedAt: string;
   /** @nullable */

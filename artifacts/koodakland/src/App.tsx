@@ -28,6 +28,7 @@ import Profile from "@/pages/profile";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import OrderSuccess from "@/pages/order-success";
+import OrderPage from "@/pages/order";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -152,6 +153,7 @@ function AppRouter() {
         <Route path="/blog" component={Blog} />
         <Route path="/blog/:slug" component={BlogPost} />
         <Route path="/order-success" component={OrderSuccess} />
+        <Route path="/orders/:id" component={OrderPage} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
         <Route path="/privacy-policy" component={PrivacyPolicy} />

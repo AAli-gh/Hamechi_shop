@@ -16,7 +16,8 @@
         "DEV_AUTH": "true",
         "DATABASE_URL": "postgresql://postgres:postgres@127.0.0.1:5433/postgres?sslmode=disable",
         "MAIL_TRANSPORT": "log",
-        "PUBLIC_SITE_URL": "http://localhost:22903"
+        "PUBLIC_SITE_URL": "http://localhost:22903",
+        "RATE_LIMITS": "off"
       }
     },
     {

@@ -16,6 +16,9 @@ export const ordersTable = pgTable("orders", {
   shippingMethod: text("shipping_method"),
   trackingCode: text("tracking_code"),
   notes: text("notes"),
+  // Set when the customer asks to return a delivered order.
+  returnRequestedAt: timestamp("return_requested_at"),
+  returnReason: text("return_reason"),
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

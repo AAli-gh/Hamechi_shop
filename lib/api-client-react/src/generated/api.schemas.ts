@@ -307,6 +307,10 @@ export interface Order {
   trackingCode?: string | null;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  returnRequestedAt?: string | null;
+  /** @nullable */
+  returnReason?: string | null;
   createdAt: string;
   updatedAt: string;
   /** @nullable */
@@ -327,6 +331,14 @@ export interface OrderInput {
   notes?: string | null;
   customerName: string;
   customerPhone: string;
+}
+
+export interface ReturnRequestInput {
+  /**
+   * @minLength 5
+   * @maxLength 500
+   */
+  reason: string;
 }
 
 export interface OrderUpdate {

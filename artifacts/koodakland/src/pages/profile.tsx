@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useGetUser, useListOrders, useGetWishlist, useUpdateUser } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -103,7 +103,7 @@ export default function Profile() {
               (orders?.orders || []).length === 0 ? (
                 <div className="text-center py-20 text-muted-foreground bg-muted/30 rounded-3xl">هنوز سفارشی ثبت نکرده‌اید</div>
               ) : (orders?.orders || []).map((order) => (
-                <div key={order.id} className="bg-card rounded-2xl p-5 border border-border/50">
+                <Link key={order.id} href={`/orders/${order.id}`} className="bg-card rounded-2xl p-5 border border-border/50 block hover:border-primary/40 transition-colors">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="font-bold">سفارش #{order.orderNumber}</p>
@@ -123,7 +123,11 @@ export default function Profile() {
                       کد پیگیری: <span className="font-bold text-primary">{order.trackingCode}</span>
                     </div>
                   )}
-                </div>
+                  {order.returnRequestedAt && (
+                    <p className="mt-3 text-xs font-bold text-amber-700">درخواست مرجوعی ثبت شده است</p>
+                  )}
+                  <p className="mt-3 text-xs text-primary font-medium">مشاهده فاکتور و جزئیات ←</p>
+                </Link>
               ))
             }
           </div>

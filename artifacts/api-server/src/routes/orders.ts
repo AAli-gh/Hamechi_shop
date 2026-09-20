@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db, ordersTable, orderItemsTable, cartItemsTable, cartsTable, productsTable, discountsTable, shippingMethodsTable, productVariantsTable } from "@workspace/db";
 import { currentPrice, variantLabel } from "../lib/products";
 import { checkDiscount, findDiscountByCode, shippingCost, toAsciiDigits } from "../lib/pricing";
-import { CreateOrderBody, UpdateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
+import { CreateOrderBody, UpdateOrderBody, ListOrdersQueryParams, RequestOrderReturnBody } from "@workspace/api-zod";
 import { optionalAuth, requireAdmin, requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
@@ -18,6 +18,7 @@ function enrichOrder(order: typeof ordersTable.$inferSelect, items: typeof order
     total: Number(order.total),
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),
+    returnRequestedAt: order.returnRequestedAt ? order.returnRequestedAt.toISOString() : null,
     items: items.map((i) => ({ ...i, price: Number(i.price) })),
   };
 }
@@ -158,6 +159,79 @@ router.post("/orders", optionalAuth, async (req, res): Promise<void> => {
   }
 });
 
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** Puts an order's items back into stock (product and variant). */
+async function restoreStock(tx: Tx, orderId: number): Promise<void> {
+  const items = await tx.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, orderId));
+  for (const item of items) {
+    if (item.variantId != null) {
+      await tx.update(productVariantsTable)
+        .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
+        .where(eq(productVariantsTable.id, item.variantId));
+    }
+    await tx.update(productsTable)
+      .set({ stock: sql`${productsTable.stock} + ${item.quantity}`, updatedAt: new Date() })
+      .where(eq(productsTable.id, item.productId));
+  }
+}
+
+/** Statuses a customer may still cancel from; later ones need the shop's help. */
+const CANCELLABLE = new Set(["pending", "processing"]);
+const RETURN_WINDOW_DAYS = 14;
+
+router.post("/orders/:id/cancel", requireAuth, async (req, res): Promise<void> => {
+  const id = parseInt(String(req.params.id), 10);
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "سفارش یافت نشد" }); return; }
+
+  const isAdmin = req.user?.role === "admin" || req.user?.role === "manager";
+  if (!isAdmin && order.userId !== req.user?.id) { res.status(403).json({ error: "دسترسی غیرمجاز" }); return; }
+  if (order.status === "cancelled") { res.status(400).json({ error: "این سفارش قبلاً لغو شده است" }); return; }
+  if (!isAdmin && !CANCELLABLE.has(order.status)) {
+    res.status(400).json({ error: "این سفارش ارسال شده است و لغو آن نیاز به تماس با پشتیبانی دارد" });
+    return;
+  }
+
+  const result = await db.transaction(async (tx) => {
+    if (order.inventoryReserved) await restoreStock(tx, id);
+    const [updated] = await tx.update(ordersTable)
+      .set({ status: "cancelled", inventoryReserved: false, updatedAt: new Date() })
+      .where(eq(ordersTable.id, id))
+      .returning();
+    const items = await tx.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, id));
+    return enrichOrder(updated, items);
+  });
+  res.json(result);
+});
+
+router.post("/orders/:id/return", requireAuth, async (req, res): Promise<void> => {
+  const id = parseInt(String(req.params.id), 10);
+  const parsed = RequestOrderReturnBody.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: "دلیل مرجوعی را کامل‌تر بنویسید" }); return; }
+
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "سفارش یافت نشد" }); return; }
+  const isAdmin = req.user?.role === "admin" || req.user?.role === "manager";
+  if (!isAdmin && order.userId !== req.user?.id) { res.status(403).json({ error: "دسترسی غیرمجاز" }); return; }
+  if (order.status !== "delivered") { res.status(400).json({ error: "فقط سفارش‌های تحویل‌شده قابل مرجوع کردن هستند" }); return; }
+  if (order.returnRequestedAt) { res.status(400).json({ error: "درخواست مرجوعی قبلاً ثبت شده است" }); return; }
+
+  // updatedAt is when the status last changed, i.e. when it was marked delivered.
+  const deadline = order.updatedAt.getTime() + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  if (Date.now() > deadline) {
+    res.status(400).json({ error: `مهلت ${RETURN_WINDOW_DAYS} روزه‌ی مرجوعی این سفارش گذشته است` });
+    return;
+  }
+
+  const [updated] = await db.update(ordersTable)
+    .set({ returnRequestedAt: new Date(), returnReason: parsed.data.reason.trim() })
+    .where(eq(ordersTable.id, id))
+    .returning();
+  const items = await db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, id));
+  res.json(enrichOrder(updated, items));
+});
+
 router.get("/orders/:id", requireAuth, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
@@ -180,17 +254,7 @@ router.patch("/orders/:id", requireAuth, requireAdmin, async (req, res): Promise
     if (!current) return null;
 
     if (parsed.data.status === "cancelled" && current.status !== "cancelled" && current.inventoryReserved) {
-      const items = await tx.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, id));
-      for (const item of items) {
-        if (item.variantId != null) {
-          await tx.update(productVariantsTable)
-            .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
-            .where(eq(productVariantsTable.id, item.variantId));
-        }
-        await tx.update(productsTable)
-          .set({ stock: sql`${productsTable.stock} + ${item.quantity}`, updatedAt: new Date() })
-          .where(eq(productsTable.id, item.productId));
-      }
+      await restoreStock(tx, id);
     }
 
     const [order] = await tx.update(ordersTable)

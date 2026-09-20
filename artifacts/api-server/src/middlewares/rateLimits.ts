@@ -16,6 +16,9 @@ function limiter(windowMinutes: number, limit: number, onlyWrites = false) {
 
 /** Per-IP limits: a broad ceiling for the whole API plus tighter ones for public write endpoints. */
 export function applyRateLimits(app: Express): void {
+  // Local escape hatch for test scripts; never honoured in production.
+  if (process.env.RATE_LIMITS === "off" && process.env.NODE_ENV !== "production") return;
+
   app.use("/api", limiter(1, 300));
   app.use("/api/orders", limiter(10, 10, true));
   app.use("/api/reviews", limiter(60, 10, true));

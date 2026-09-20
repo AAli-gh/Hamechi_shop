@@ -41,6 +41,12 @@ function OrderDetails({ order }: { order: Order }) {
         <div className="col-span-2"><span className="text-muted-foreground">آدرس: </span>{formatAddress(order.addressSnapshot)}</div>
         {order.notes && <div className="col-span-2"><span className="text-muted-foreground">توضیحات: </span>{order.notes}</div>}
       </div>
+      {order.returnRequestedAt && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+          <p className="font-bold text-amber-800">درخواست مرجوعی — {new Date(order.returnRequestedAt).toLocaleDateString("fa-IR")}</p>
+          {order.returnReason && <p className="text-amber-800/80 mt-1">{order.returnReason}</p>}
+        </div>
+      )}
       <ul className="flex flex-col divide-y divide-border/40 max-h-56 overflow-y-auto">
         {order.items.map((item) => (
           <li key={item.id} className="flex items-center gap-3 py-2">

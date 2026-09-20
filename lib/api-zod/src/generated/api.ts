@@ -1834,6 +1834,8 @@ export const ListOrdersResponse = zod.object({
       shippingMethod: zod.string().nullish(),
       trackingCode: zod.string().nullish(),
       notes: zod.string().nullish(),
+      returnRequestedAt: zod.string().nullish(),
+      returnReason: zod.string().nullish(),
       createdAt: zod.string(),
       updatedAt: zod.string(),
       customerName: zod.string().nullish(),
@@ -1892,6 +1894,8 @@ export const GetOrderResponse = zod.object({
   shippingMethod: zod.string().nullish(),
   trackingCode: zod.string().nullish(),
   notes: zod.string().nullish(),
+  returnRequestedAt: zod.string().nullish(),
+  returnReason: zod.string().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
   customerName: zod.string().nullish(),
@@ -1937,6 +1941,100 @@ export const UpdateOrderResponse = zod.object({
   shippingMethod: zod.string().nullish(),
   trackingCode: zod.string().nullish(),
   notes: zod.string().nullish(),
+  returnRequestedAt: zod.string().nullish(),
+  returnReason: zod.string().nullish(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+  customerName: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+});
+
+/**
+ * @summary Cancel an order (customer or admin)
+ */
+export const CancelOrderParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const CancelOrderResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number().nullish(),
+  orderNumber: zod.string(),
+  status: zod.string(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      productId: zod.number(),
+      productName: zod.string(),
+      variantId: zod.number().nullish(),
+      variantName: zod.string().nullish(),
+      quantity: zod.number(),
+      price: zod.number(),
+      image: zod.string().nullish(),
+    }),
+  ),
+  subtotal: zod.number(),
+  shippingCost: zod.number(),
+  discount: zod.number(),
+  total: zod.number(),
+  addressId: zod.number().nullish(),
+  addressSnapshot: zod.string().nullish(),
+  shippingMethod: zod.string().nullish(),
+  trackingCode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  returnRequestedAt: zod.string().nullish(),
+  returnReason: zod.string().nullish(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+  customerName: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+});
+
+/**
+ * @summary Ask to return a delivered order
+ */
+export const RequestOrderReturnParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const requestOrderReturnBodyReasonMin = 5;
+export const requestOrderReturnBodyReasonMax = 500;
+
+export const RequestOrderReturnBody = zod.object({
+  reason: zod
+    .string()
+    .min(requestOrderReturnBodyReasonMin)
+    .max(requestOrderReturnBodyReasonMax),
+});
+
+export const RequestOrderReturnResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number().nullish(),
+  orderNumber: zod.string(),
+  status: zod.string(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      productId: zod.number(),
+      productName: zod.string(),
+      variantId: zod.number().nullish(),
+      variantName: zod.string().nullish(),
+      quantity: zod.number(),
+      price: zod.number(),
+      image: zod.string().nullish(),
+    }),
+  ),
+  subtotal: zod.number(),
+  shippingCost: zod.number(),
+  discount: zod.number(),
+  total: zod.number(),
+  addressId: zod.number().nullish(),
+  addressSnapshot: zod.string().nullish(),
+  shippingMethod: zod.string().nullish(),
+  trackingCode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  returnRequestedAt: zod.string().nullish(),
+  returnReason: zod.string().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
   customerName: zod.string().nullish(),
@@ -2454,6 +2552,8 @@ export const GetRecentOrdersResponseItem = zod.object({
   shippingMethod: zod.string().nullish(),
   trackingCode: zod.string().nullish(),
   notes: zod.string().nullish(),
+  returnRequestedAt: zod.string().nullish(),
+  returnReason: zod.string().nullish(),
   createdAt: zod.string(),
   updatedAt: zod.string(),
   customerName: zod.string().nullish(),

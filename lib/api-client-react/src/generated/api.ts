@@ -58,6 +58,7 @@ import type {
   ProductVariantsInput,
   RegisterInput,
   RemoveCartItemParams,
+  ReturnRequestInput,
   Review,
   ReviewInput,
   SalesChartPoint,
@@ -2590,6 +2591,177 @@ export const useUpdateOrder = <
   TContext
 > => {
   return useMutation(getUpdateOrderMutationOptions(options));
+};
+
+/**
+ * @summary Cancel an order (customer or admin)
+ */
+export const getCancelOrderUrl = (id: number) => {
+  return `/api/orders/${id}/cancel`;
+};
+
+export const cancelOrder = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Order> => {
+  return customFetch<Order>(getCancelOrderUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getCancelOrderMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof cancelOrder>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof cancelOrder>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["cancelOrder"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof cancelOrder>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return cancelOrder(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CancelOrderMutationResult = NonNullable<
+  Awaited<ReturnType<typeof cancelOrder>>
+>;
+
+export type CancelOrderMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Cancel an order (customer or admin)
+ */
+export const useCancelOrder = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof cancelOrder>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof cancelOrder>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getCancelOrderMutationOptions(options));
+};
+
+/**
+ * @summary Ask to return a delivered order
+ */
+export const getRequestOrderReturnUrl = (id: number) => {
+  return `/api/orders/${id}/return`;
+};
+
+export const requestOrderReturn = async (
+  id: number,
+  returnRequestInput: ReturnRequestInput,
+  options?: RequestInit,
+): Promise<Order> => {
+  return customFetch<Order>(getRequestOrderReturnUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(returnRequestInput),
+  });
+};
+
+export const getRequestOrderReturnMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestOrderReturn>>,
+    TError,
+    { id: number; data: BodyType<ReturnRequestInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof requestOrderReturn>>,
+  TError,
+  { id: number; data: BodyType<ReturnRequestInput> },
+  TContext
+> => {
+  const mutationKey = ["requestOrderReturn"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof requestOrderReturn>>,
+    { id: number; data: BodyType<ReturnRequestInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return requestOrderReturn(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RequestOrderReturnMutationResult = NonNullable<
+  Awaited<ReturnType<typeof requestOrderReturn>>
+>;
+export type RequestOrderReturnMutationBody = BodyType<ReturnRequestInput>;
+export type RequestOrderReturnMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Ask to return a delivered order
+ */
+export const useRequestOrderReturn = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof requestOrderReturn>>,
+    TError,
+    { id: number; data: BodyType<ReturnRequestInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof requestOrderReturn>>,
+  TError,
+  { id: number; data: BodyType<ReturnRequestInput> },
+  TContext
+> => {
+  return useMutation(getRequestOrderReturnMutationOptions(options));
 };
 
 /**
