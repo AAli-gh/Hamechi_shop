@@ -2091,13 +2091,43 @@ export const AddUserAddressParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const addUserAddressBodyLabelMax = 40;
+
+export const addUserAddressBodyProvinceMin = 2;
+export const addUserAddressBodyProvinceMax = 40;
+
+export const addUserAddressBodyCityMin = 2;
+export const addUserAddressBodyCityMax = 40;
+
+export const addUserAddressBodyStreetMin = 5;
+export const addUserAddressBodyStreetMax = 300;
+
+export const addUserAddressBodyPostalCodeRegExp = new RegExp("^[0-9]{10}$");
+
 export const AddUserAddressBody = zod.object({
-  label: zod.string().optional(),
-  province: zod.string(),
-  city: zod.string(),
-  street: zod.string(),
-  postalCode: zod.string(),
+  label: zod.string().max(addUserAddressBodyLabelMax).optional(),
+  province: zod
+    .string()
+    .min(addUserAddressBodyProvinceMin)
+    .max(addUserAddressBodyProvinceMax),
+  city: zod
+    .string()
+    .min(addUserAddressBodyCityMin)
+    .max(addUserAddressBodyCityMax),
+  street: zod
+    .string()
+    .min(addUserAddressBodyStreetMin)
+    .max(addUserAddressBodyStreetMax),
+  postalCode: zod.string().regex(addUserAddressBodyPostalCodeRegExp),
   isDefault: zod.boolean().optional(),
+});
+
+/**
+ * @summary Delete a saved address
+ */
+export const DeleteUserAddressParams = zod.object({
+  id: zod.coerce.number(),
+  addressId: zod.coerce.number(),
 });
 
 /**

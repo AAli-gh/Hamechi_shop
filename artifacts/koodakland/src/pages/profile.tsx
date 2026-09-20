@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useGetUser, useListOrders, useGetWishlist, useUpdateUser } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { User, Package, Heart, Edit3, LogOut, LogOutIcon } from "lucide-react";
+import { User, Package, Heart, Edit3, LogOut, LogOutIcon, MapPin } from "lucide-react";
+import { AddressBook } from "@/components/account/AddressBook";
 import { ProductCard } from "@/components/product/ProductCard";
 
 const ORDER_STATUS: Record<string, { label: string; color: string }> = {
@@ -19,10 +20,10 @@ const ORDER_STATUS: Record<string, { label: string; color: string }> = {
 };
 
 export default function Profile() {
-  const { user, logout, logoutAll, updateUser } = useAuth();
+  const { user, isLoaded, logout, logoutAll, updateUser } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const [tab, setTab] = useState<"orders" | "wishlist" | "profile">("orders");
+  const [tab, setTab] = useState<"orders" | "wishlist" | "addresses" | "profile">("orders");
   const [editName, setEditName] = useState(user?.name || "");
   const [editEmail, setEditEmail] = useState(user?.email || "");
 
@@ -30,10 +31,20 @@ export default function Profile() {
   const { data: wishlist, isLoading: wishlistLoading } = useGetWishlist({ userId: user?.id }, { query: { enabled: !!user, queryKey: ["wishlist", user?.id] } });
   const updateUserMutation = useUpdateUser();
 
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
+  // Wait for the account to load: redirecting on the first render would bounce
+  // a signed-in visitor to the login page before their session arrives.
+  useEffect(() => {
+    if (isLoaded && !user) navigate("/login");
+  }, [isLoaded, user, navigate]);
+
+  if (!isLoaded) return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl flex flex-col gap-4" dir="rtl">
+      <Skeleton className="h-24 rounded-3xl" />
+      <Skeleton className="h-10 w-64 rounded-full" />
+      <Skeleton className="h-40 rounded-3xl" />
+    </div>
+  );
+  if (!user) return null;
 
   const handleSaveProfile = () => {
     updateUserMutation.mutate({ id: user.id, data: { name: editName, email: editEmail } }, {
@@ -53,6 +64,7 @@ export default function Profile() {
   const tabs = [
     { id: "orders", label: "سفارش‌ها", icon: Package },
     { id: "wishlist", label: "علاقه‌مندی‌ها", icon: Heart },
+    { id: "addresses", label: "آدرس‌ها", icon: MapPin },
     { id: "profile", label: "ویرایش پروفایل", icon: Edit3 },
   ] as const;
 
@@ -130,6 +142,8 @@ export default function Profile() {
             }
           </div>
         )}
+
+        {tab === "addresses" && <AddressBook userId={user.id} />}
 
         {tab === "profile" && (
           <div className="bg-card rounded-2xl p-6 border border-border/50">

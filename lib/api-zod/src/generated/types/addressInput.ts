@@ -7,10 +7,24 @@
  */
 
 export interface AddressInput {
+  /** @maxLength 40 */
   label?: string;
+  /**
+   * @minLength 2
+   * @maxLength 40
+   */
   province: string;
+  /**
+   * @minLength 2
+   * @maxLength 40
+   */
   city: string;
+  /**
+   * @minLength 5
+   * @maxLength 300
+   */
   street: string;
+  /** @pattern ^[0-9]{10}$ */
   postalCode: string;
   isDefault?: boolean;
 }

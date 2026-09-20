@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useGetCart, useCreateOrder, useListShippingMethods, useValidateDiscount, type ShippingMethod } from "@workspace/api-client-react";
+import { useGetCart, useCreateOrder, useListShippingMethods, useValidateDiscount, useGetUserAddresses, useAddUserAddress, type ShippingMethod, type Address } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { IRAN_PROVINCES } from "@/lib/iran-provinces";
@@ -37,12 +37,29 @@ export default function Checkout() {
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number } | null>(null);
   const [notes, setNotes] = useState("");
   const [step, setStep] = useState(1);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
+  const [saveAddress, setSaveAddress] = useState(true);
 
   const { data: cart, isLoading: cartLoading } = useGetCart({ sessionId }, { query: { queryKey: ["cart", sessionId] } });
   const { data: shippingMethods } = useListShippingMethods();
   const createOrder = useCreateOrder();
   const validateDiscount = useValidateDiscount();
   const queryClient = useQueryClient();
+  const { data: addresses } = useGetUserAddresses(user?.id ?? 0, {
+    query: { enabled: !!user, queryKey: ["addresses", user?.id] },
+  });
+  const addAddress = useAddUserAddress();
+
+  const fillFrom = (address: Address) => {
+    setSelectedAddressId(address.id);
+    setForm((f) => ({ ...f, province: address.province, city: address.city, street: address.street, postalCode: address.postalCode }));
+  };
+
+  // Start on the default saved address, once, when the list arrives.
+  useEffect(() => {
+    if (!addresses?.length || selectedAddressId !== "new" || form.street) return;
+    fillFrom(addresses.find((a) => a.isDefault) ?? addresses[0]);
+  }, [addresses]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeShipping = shippingMethods?.find(m => m.id.toString() === selectedShipping);
   const subtotal = cart?.subtotal || 0;
@@ -83,6 +100,13 @@ export default function Checkout() {
       data: { sessionId, userId: user?.id ?? null, addressSnapshot, shippingMethod: activeShipping.name, discountCode: appliedDiscount?.code ?? null, notes: notes || null, customerName: form.name, customerPhone: phone },
     }, {
       onSuccess: (order) => {
+        // Remember a newly typed address for next time (failures must not block the order).
+        if (user && selectedAddressId === "new" && saveAddress) {
+          addAddress.mutate(
+            { id: user.id, data: { province: form.province, city: form.city, street: form.street, postalCode } },
+            { onSuccess: () => queryClient.invalidateQueries({ queryKey: ["addresses", user.id] }), onError: () => {} },
+          );
+        }
         queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
         navigate(`/order-success?order=${order.orderNumber}`);
       },
@@ -109,6 +133,26 @@ export default function Checkout() {
             {/* Address */}
             <div className="bg-card rounded-2xl p-6 border border-border/50">
               <h2 className="font-bold text-lg mb-5 flex items-center gap-2"><Shield className="w-5 h-5 text-primary" /> اطلاعات تحویل</h2>
+
+              {!!addresses?.length && (
+                <div className="mb-5 flex flex-col gap-2">
+                  <p className="text-sm font-medium text-muted-foreground">آدرس‌های ذخیره‌شده</p>
+                  {addresses.map((address) => (
+                    <label key={address.id} className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors ${selectedAddressId === address.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}>
+                      <input type="radio" name="saved-address" className="mt-1" checked={selectedAddressId === address.id} onChange={() => fillFrom(address)} />
+                      <span className="text-sm leading-relaxed">
+                        {address.label && <span className="font-bold">{address.label} — </span>}
+                        {address.province}، {address.city}، {address.street}
+                        {address.isDefault && <span className="text-xs text-primary font-bold mr-2">(پیش‌فرض)</span>}
+                      </span>
+                    </label>
+                  ))}
+                  <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors ${selectedAddressId === "new" ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}>
+                    <input type="radio" name="saved-address" checked={selectedAddressId === "new"} onChange={() => { setSelectedAddressId("new"); setForm((f) => ({ ...f, province: "", city: "", street: "", postalCode: "" })); }} />
+                    <span className="text-sm font-medium">آدرس جدید</span>
+                  </label>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { key: "name", label: "نام و نام خانوادگی", placeholder: "نام کامل", autoComplete: "name" },
@@ -124,7 +168,7 @@ export default function Checkout() {
                 <div>
                   <label htmlFor="checkout-province" className="text-sm font-medium text-muted-foreground mb-1.5 block">استان</label>
                   <select id="checkout-province" value={form.province}
-                    onChange={e => setForm(f => ({ ...f, province: e.target.value, city: "" }))}
+                    onChange={e => { setSelectedAddressId("new"); setForm(f => ({ ...f, province: e.target.value, city: "" })); }}
                     className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option value="">انتخاب استان</option>
                     {IRAN_PROVINCES.map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
@@ -148,10 +192,17 @@ export default function Checkout() {
                     className="h-10 w-full rounded-xl bg-muted border-none px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="text-sm font-medium text-muted-foreground mb-1.5 block">آدرس کامل</label>
-                  <textarea value={form.street} onChange={e => setForm(f => ({ ...f, street: e.target.value }))} placeholder="خیابان، کوچه، پلاک..." rows={2}
+                  <label htmlFor="checkout-street" className="text-sm font-medium text-muted-foreground mb-1.5 block">آدرس کامل</label>
+                  <textarea id="checkout-street" value={form.street} onChange={e => setForm(f => ({ ...f, street: e.target.value }))} placeholder="خیابان، کوچه، پلاک..." rows={2}
+                    autoComplete="street-address"
                     className="w-full rounded-xl bg-muted border-none px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" />
                 </div>
+                {user && selectedAddressId === "new" && (
+                  <label className="sm:col-span-2 flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
+                    <span>این آدرس برای خریدهای بعدی ذخیره شود</span>
+                  </label>
+                )}
               </div>
             </div>
 

@@ -3369,6 +3369,91 @@ export const useAddUserAddress = <
 };
 
 /**
+ * @summary Delete a saved address
+ */
+export const getDeleteUserAddressUrl = (id: number, addressId: number) => {
+  return `/api/users/${id}/addresses/${addressId}`;
+};
+
+export const deleteUserAddress = async (
+  id: number,
+  addressId: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteUserAddressUrl(id, addressId), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteUserAddressMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteUserAddress>>,
+    TError,
+    { id: number; addressId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteUserAddress>>,
+  TError,
+  { id: number; addressId: number },
+  TContext
+> => {
+  const mutationKey = ["deleteUserAddress"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteUserAddress>>,
+    { id: number; addressId: number }
+  > = (props) => {
+    const { id, addressId } = props ?? {};
+
+    return deleteUserAddress(id, addressId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteUserAddressMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteUserAddress>>
+>;
+
+export type DeleteUserAddressMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a saved address
+ */
+export const useDeleteUserAddress = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteUserAddress>>,
+    TError,
+    { id: number; addressId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteUserAddress>>,
+  TError,
+  { id: number; addressId: number },
+  TContext
+> => {
+  return useMutation(getDeleteUserAddressMutationOptions(options));
+};
+
+/**
  * @summary List blog posts
  */
 export const getListBlogPostsUrl = (params?: ListBlogPostsParams) => {

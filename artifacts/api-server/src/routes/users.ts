@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { clerkClient } from "@clerk/express";
-import { eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db, usersTable, addressesTable } from "@workspace/db";
 import { UpdateUserBody, AddUserAddressBody } from "@workspace/api-zod";
 import { requireAuth } from "../middleware/auth";
@@ -62,14 +62,43 @@ router.get("/users/:id/addresses", requireAuth, async (req, res): Promise<void> 
   res.json(addresses);
 });
 
+const MAX_ADDRESSES = 10;
+
 router.post("/users/:id/addresses", requireAuth, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
   if (!canAccessUser(req, id)) { res.status(403).json({ error: "دسترسی غیرمجاز" }); return; }
   const parsed = AddUserAddressBody.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-  const [address] = await db.insert(addressesTable).values({ ...parsed.data, userId: id }).returning();
+  if (!parsed.success) { res.status(400).json({ error: "آدرس کامل و معتبر وارد کنید (کد پستی ۱۰ رقم)" }); return; }
+
+  const existing = await db.select({ id: addressesTable.id }).from(addressesTable).where(eq(addressesTable.userId, id));
+  if (existing.length >= MAX_ADDRESSES) { res.status(400).json({ error: `حداکثر ${MAX_ADDRESSES} آدرس می‌توانید ذخیره کنید` }); return; }
+
+  // The first address is the default; marking a new one default clears the others.
+  const isDefault = parsed.data.isDefault || existing.length === 0;
+  const address = await db.transaction(async (tx) => {
+    if (isDefault) await tx.update(addressesTable).set({ isDefault: false }).where(eq(addressesTable.userId, id));
+    const [created] = await tx.insert(addressesTable).values({ ...parsed.data, isDefault, userId: id }).returning();
+    return created;
+  });
   res.status(201).json(address);
+});
+
+router.delete("/users/:id/addresses/:addressId", requireAuth, async (req, res): Promise<void> => {
+  const id = parseInt(String(req.params.id), 10);
+  const addressId = parseInt(String(req.params.addressId), 10);
+  if (!canAccessUser(req, id)) { res.status(403).json({ error: "دسترسی غیرمجاز" }); return; }
+  const [deleted] = await db.delete(addressesTable)
+    .where(and(eq(addressesTable.id, addressId), eq(addressesTable.userId, id)))
+    .returning();
+  if (!deleted) { res.status(404).json({ error: "آدرس یافت نشد" }); return; }
+  // Keep exactly one default: promote the next address when the default is removed.
+  if (deleted.isDefault) {
+    const [next] = await db.select().from(addressesTable).where(eq(addressesTable.userId, id))
+      .orderBy(asc(addressesTable.id)).limit(1);
+    if (next) await db.update(addressesTable).set({ isDefault: true }).where(eq(addressesTable.id, next.id));
+  }
+  res.sendStatus(204);
 });
 
 export default router;
