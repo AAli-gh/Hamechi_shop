@@ -4,9 +4,9 @@ import { useSEO } from "@/hooks/useSEO";
 
 function LegalLayout({ title, titleFa, icon: Icon, children }: { title: string; titleFa: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/40 to-white" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-card" dir="rtl">
       {/* Header */}
-      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-orange-100">
+      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-border">
         <div className="container mx-auto max-w-4xl px-4 py-10">
           <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-5">
             <Link href="/" className="hover:text-primary transition-colors">خانه</Link>
@@ -26,7 +26,7 @@ function LegalLayout({ title, titleFa, icon: Icon, children }: { title: string; 
       </div>
       {/* Content */}
       <div className="container mx-auto max-w-4xl px-4 py-10">
-        <div className="bg-white rounded-3xl border border-orange-100 shadow-sm p-6 sm:p-10 prose prose-sm max-w-none">
+        <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-10 prose prose-sm max-w-none">
           {children}
         </div>
       </div>
@@ -37,7 +37,7 @@ function LegalLayout({ title, titleFa, icon: Icon, children }: { title: string; 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-8">
-      <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-orange-100">{title}</h2>
+      <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-border">{title}</h2>
       <div className="text-sm text-muted-foreground leading-loose space-y-2">{children}</div>
     </section>
   );

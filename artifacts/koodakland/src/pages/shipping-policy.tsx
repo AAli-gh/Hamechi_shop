@@ -13,8 +13,8 @@ export default function ShippingPolicy() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/40 to-white" dir="rtl">
-      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-orange-100">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-card" dir="rtl">
+      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-border">
         <div className="container mx-auto max-w-4xl px-4 py-10">
           <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-5">
             <Link href="/" className="hover:text-primary transition-colors">خانه</Link>
@@ -41,7 +41,7 @@ export default function ShippingPolicy() {
             { icon: Package, title: "بسته‌بندی", desc: "استاندارد و ایمن برای همه‌ی کالاها" },
             { icon: MapPin, title: "سراسر ایران", desc: "ارسال به تمام نقاط کشور" },
           ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="bg-white rounded-2xl border border-orange-100 p-5 flex gap-3">
+            <div key={title} className="bg-card rounded-2xl border border-border p-5 flex gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Icon className="w-5 h-5 text-primary" />
               </div>
@@ -53,12 +53,12 @@ export default function ShippingPolicy() {
           ))}
         </div>
 
-        <div className="bg-white rounded-3xl border border-orange-100 shadow-sm p-6 sm:p-10 flex flex-col gap-8">
+        <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-10 flex flex-col gap-8">
           <section>
-            <h2 className="text-lg font-black text-foreground mb-4 pb-2 border-b border-orange-100">جدول زمان‌بندی و هزینه ارسال</h2>
+            <h2 className="text-lg font-black text-foreground mb-4 pb-2 border-b border-border">جدول زمان‌بندی و هزینه ارسال</h2>
             <div className="overflow-x-auto rounded-2xl border border-border/40">
               <table className="w-full text-sm">
-                <thead className="bg-orange-50/50">
+                <thead className="bg-primary/10">
                   <tr>
                     {["منطقه", "زمان تحویل", "هزینه ارسال"].map(h => (
                       <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground">{h}</th>
@@ -76,13 +76,13 @@ export default function ShippingPolicy() {
                 </tbody>
               </table>
             </div>
-            <div className="mt-3 p-4 bg-green-50 border border-green-100 rounded-2xl">
-              <p className="text-sm font-semibold text-green-800">🎁 ارسال رایگان برای خریدهای بالای ۵۰۰,۰۰۰ تومان (تهران) و ۸۰۰,۰۰۰ تومان (سایر شهرها)</p>
+            <div className="mt-3 p-4 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl">
+              <p className="text-sm font-semibold text-emerald-400">🎁 ارسال رایگان برای خریدهای بالای ۵۰۰,۰۰۰ تومان (تهران) و ۸۰۰,۰۰۰ تومان (سایر شهرها)</p>
             </div>
           </section>
 
           <section>
-            <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-orange-100">روش‌های ارسال</h2>
+            <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-border">روش‌های ارسال</h2>
             <div className="text-sm text-muted-foreground leading-loose space-y-2">
               <p><strong>پست پیشتاز:</strong> مناسب برای تمام نقاط کشور، قابل پیگیری</p>
               <p><strong>تیپاکس:</strong> سریع‌تر، برای شهرهای بزرگ</p>
@@ -92,14 +92,14 @@ export default function ShippingPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-orange-100">پیگیری سفارش</h2>
+            <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-border">پیگیری سفارش</h2>
             <div className="text-sm text-muted-foreground leading-loose space-y-2">
               <p>پس از ارسال سفارش، کد رهگیری از طریق پیامک ارسال می‌شود. همچنین از طریق صفحه <Link href="/track" className="text-primary hover:underline">پیگیری سفارش</Link> می‌توانید وضعیت را بررسی کنید.</p>
             </div>
           </section>
 
           <section>
-            <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-orange-100">تأخیر در ارسال</h2>
+            <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-border">تأخیر در ارسال</h2>
             <div className="text-sm text-muted-foreground leading-loose space-y-2">
               <p>در صورت تأخیر بیش از زمان اعلام‌شده، با پشتیبانی تماس بگیرید. در روزهای تعطیل رسمی، پردازش سفارشات معطل می‌ماند.</p>
             </div>

@@ -12,11 +12,11 @@ import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { Printer, ArrowRight, XCircle, RotateCcw } from "lucide-react";
 
 const STATUS: Record<string, { label: string; color: string }> = {
-  pending: { label: "در انتظار تایید", color: "bg-yellow-100 text-yellow-800" },
-  processing: { label: "در حال پردازش", color: "bg-blue-100 text-blue-800" },
-  shipped: { label: "ارسال شده", color: "bg-purple-100 text-purple-800" },
-  delivered: { label: "تحویل داده شده", color: "bg-green-100 text-green-800" },
-  cancelled: { label: "لغو شده", color: "bg-red-100 text-red-800" },
+  pending: { label: "در انتظار تایید", color: "bg-yellow-500/15 text-yellow-300" },
+  processing: { label: "در حال پردازش", color: "bg-sky-500/15 text-sky-300" },
+  shipped: { label: "ارسال شده", color: "bg-violet-500/15 text-violet-300" },
+  delivered: { label: "تحویل داده شده", color: "bg-emerald-500/15 text-emerald-400" },
+  cancelled: { label: "لغو شده", color: "bg-red-500/15 text-red-400" },
 };
 
 /** addressSnapshot is JSON written at checkout; older orders may hold plain text. */
@@ -126,18 +126,18 @@ export default function OrderPage() {
 
           <div className="flex flex-col gap-1.5 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">جمع کالاها</span><span>{order.subtotal.toLocaleString("fa-IR")} تومان</span></div>
-            {order.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-green-600">-{order.discount.toLocaleString("fa-IR")} تومان</span></div>}
+            {order.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-emerald-400">-{order.discount.toLocaleString("fa-IR")} تومان</span></div>}
             <div className="flex justify-between"><span className="text-muted-foreground">هزینه ارسال</span><span>{order.shippingCost === 0 ? "رایگان" : `${order.shippingCost.toLocaleString("fa-IR")} تومان`}</span></div>
             <Separator className="my-1" />
             <div className="flex justify-between font-black text-base"><span>مبلغ کل</span><span className="text-primary">{order.total.toLocaleString("fa-IR")} تومان</span></div>
           </div>
 
           {order.returnRequestedAt && (
-            <div className="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm">
-              <p className="font-bold text-amber-800">درخواست مرجوعی ثبت شد</p>
-              <p className="text-amber-800/80 mt-1">تاریخ: {new Date(order.returnRequestedAt).toLocaleDateString("fa-IR")}</p>
-              {order.returnReason && <p className="text-amber-800/80 mt-1">دلیل: {order.returnReason}</p>}
-              <p className="text-amber-800/80 mt-1">پشتیبانی برای هماهنگی با شما تماس می‌گیرد.</p>
+            <div className="mt-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 text-sm">
+              <p className="font-bold text-amber-300">درخواست مرجوعی ثبت شد</p>
+              <p className="text-amber-200/80 mt-1">تاریخ: {new Date(order.returnRequestedAt).toLocaleDateString("fa-IR")}</p>
+              {order.returnReason && <p className="text-amber-200/80 mt-1">دلیل: {order.returnReason}</p>}
+              <p className="text-amber-200/80 mt-1">پشتیبانی برای هماهنگی با شما تماس می‌گیرد.</p>
             </div>
           )}
 

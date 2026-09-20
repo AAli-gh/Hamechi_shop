@@ -32,10 +32,10 @@ function fetchInventory(search: string, lowOnly: boolean) {
 }
 
 function stockStatus(stock: number) {
-  if (stock === 0) return { label: "ناموجود", icon: XCircle, color: "text-red-600 bg-red-50 border-red-100" };
-  if (stock <= 5) return { label: "بحرانی", icon: AlertTriangle, color: "text-red-500 bg-red-50 border-red-100" };
-  if (stock <= 10) return { label: "کم", icon: TrendingDown, color: "text-orange-600 bg-orange-50 border-orange-100" };
-  return { label: "موجود", icon: CheckCircle, color: "text-green-600 bg-green-50 border-green-100" };
+  if (stock === 0) return { label: "ناموجود", icon: XCircle, color: "text-red-400 bg-red-500/15 border-red-500/30" };
+  if (stock <= 5) return { label: "بحرانی", icon: AlertTriangle, color: "text-red-400 bg-red-500/15 border-red-500/30" };
+  if (stock <= 10) return { label: "کم", icon: TrendingDown, color: "text-primary bg-primary/10 border-border" };
+  return { label: "موجود", icon: CheckCircle, color: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30" };
 }
 
 export default function AdminInventory() {
@@ -114,10 +114,10 @@ export default function AdminInventory() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "کل محصولات", value: summary.total, icon: Package, color: "bg-blue-100 text-blue-600" },
-          { label: "موجود", value: summary.inStock, icon: CheckCircle, color: "bg-green-100 text-green-600" },
-          { label: "موجودی کم", value: summary.lowStock, icon: AlertTriangle, color: "bg-orange-100 text-orange-600" },
-          { label: "ناموجود", value: summary.outOfStock, icon: XCircle, color: "bg-red-100 text-red-600" },
+          { label: "کل محصولات", value: summary.total, icon: Package, color: "bg-sky-500/15 text-sky-300" },
+          { label: "موجود", value: summary.inStock, icon: CheckCircle, color: "bg-emerald-500/15 text-emerald-400" },
+          { label: "موجودی کم", value: summary.lowStock, icon: AlertTriangle, color: "bg-primary/10 text-primary" },
+          { label: "ناموجود", value: summary.outOfStock, icon: XCircle, color: "bg-red-500/15 text-red-400" },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-card rounded-2xl p-5 border border-border/50 flex gap-3 items-center">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
@@ -138,7 +138,7 @@ export default function AdminInventory() {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="جستجوی محصول..." className="w-full h-10 rounded-xl bg-muted border-none pr-10 pl-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
         </div>
         <button onClick={() => setLowOnly(!lowOnly)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${lowOnly ? "bg-orange-50 border-orange-200 text-orange-700" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${lowOnly ? "bg-primary/10 border-border text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
           <AlertTriangle className="w-4 h-4" />
           فقط موجودی کم
         </button>
@@ -196,7 +196,7 @@ export default function AdminInventory() {
                             min={0}
                           />
                         ) : (
-                          <span className={`text-sm font-bold ${item.stock === 0 ? "text-red-600" : item.stock <= 5 ? "text-red-500" : item.stock <= 10 ? "text-orange-600" : "text-green-600"}`}>
+                          <span className={`text-sm font-bold ${item.stock === 0 ? "text-red-400" : item.stock <= 5 ? "text-red-400" : item.stock <= 10 ? "text-primary" : "text-emerald-400"}`}>
                             {item.stock.toLocaleString("fa-IR")}
                           </span>
                         )}
@@ -237,7 +237,7 @@ export default function AdminInventory() {
                 </div>
                 <div>
                   <p className="font-bold">{editItem.nameFa}</p>
-                  <p className="text-sm text-muted-foreground">موجودی فعلی: <strong className={editItem.stock <= 5 ? "text-red-600" : "text-green-600"}>{editItem.stock}</strong></p>
+                  <p className="text-sm text-muted-foreground">موجودی فعلی: <strong className={editItem.stock <= 5 ? "text-red-400" : "text-emerald-400"}>{editItem.stock}</strong></p>
                 </div>
               </div>
               <div>

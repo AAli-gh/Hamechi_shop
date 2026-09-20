@@ -81,7 +81,7 @@ export default function Compare() {
                 <th className="text-right p-3 text-muted-foreground font-medium sticky right-0 bg-background">قیمت</th>
                 {products.map((product) => (
                   <td key={product.id} className="p-3 text-center border-t border-border/50">
-                    <span className={`font-black ${cheapest === price(product) ? "text-green-600" : "text-foreground"}`}>
+                    <span className={`font-black ${cheapest === price(product) ? "text-emerald-400" : "text-foreground"}`}>
                       {price(product).toLocaleString("fa-IR")} تومان
                     </span>
                     {product.salePrice != null && (
@@ -95,7 +95,7 @@ export default function Compare() {
                 {products.map((product) => (
                   <td key={product.id} className="p-3 text-center border-t border-border/50">
                     {product.stock > 0
-                      ? <span className="text-green-600 font-medium">موجود</span>
+                      ? <span className="text-emerald-400 font-medium">موجود</span>
                       : <span className="text-destructive font-medium">ناموجود</span>}
                   </td>
                 ))}

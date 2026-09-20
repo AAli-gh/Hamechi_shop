@@ -43,9 +43,9 @@ export default function AdminNewsletter() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[
-          { label: "کل مشترکین", value: data?.total || 0, icon: Users, color: "bg-blue-100 text-blue-600" },
-          { label: "فعال", value: data?.active || 0, icon: CheckCircle, color: "bg-green-100 text-green-600" },
-          { label: "غیرفعال", value: (data?.total || 0) - (data?.active || 0), icon: XCircle, color: "bg-red-100 text-red-600" },
+          { label: "کل مشترکین", value: data?.total || 0, icon: Users, color: "bg-sky-500/15 text-sky-300" },
+          { label: "فعال", value: data?.active || 0, icon: CheckCircle, color: "bg-emerald-500/15 text-emerald-400" },
+          { label: "غیرفعال", value: (data?.total || 0) - (data?.active || 0), icon: XCircle, color: "bg-red-500/15 text-red-400" },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-card rounded-2xl p-5 border border-border/50 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}><Icon className="w-5 h-5" /></div>
@@ -79,14 +79,14 @@ export default function AdminNewsletter() {
                     <td className="px-4 py-3 text-muted-foreground">{s.name || "—"}</td>
                     <td className="px-4 py-3"><span className="text-xs px-2 py-1 rounded-full bg-muted">{SOURCE_LABELS[s.source] || s.source}</span></td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-semibold ${s.isActive ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-semibold ${s.isActive ? "bg-emerald-500/15 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                         {s.isActive ? "فعال" : "غیرفعال"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground" dir="ltr">{new Date(s.createdAt).toLocaleDateString("fa-IR")}</td>
                     <td className="px-4 py-3">
                       {s.isActive && (
-                        <Button size="icon" variant="ghost" className="w-7 h-7 rounded-lg hover:bg-red-50 hover:text-red-500"
+                        <Button size="icon" variant="ghost" className="w-7 h-7 rounded-lg hover:bg-red-500/15 hover:text-red-400"
                           onClick={() => { if (confirm("لغو اشتراک شود؟")) deactivate.mutate(s.id); }}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </Button>

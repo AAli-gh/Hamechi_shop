@@ -1,50 +1,51 @@
 import { Link } from "wouter";
-import { Search, Home, ShoppingBag } from "lucide-react";
+import { Home, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSEO } from "@/hooks/useSEO";
 
 export default function NotFound() {
+  useSEO({ title: "صفحه پیدا نشد" });
+
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4" dir="rtl">
-      <div className="text-center max-w-lg">
-        <div className="relative w-44 h-44 mx-auto mb-8">
-          <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
-          <div className="absolute inset-4 rounded-full bg-primary/15" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-7xl font-black text-primary/25 select-none">۴۰۴</span>
-          </div>
-          <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-orange-200" />
-          <div className="absolute -bottom-2 -left-3 w-4 h-4 rounded-full bg-purple-200" />
-          <div className="absolute top-1/2 -left-4 w-3 h-3 rounded-full bg-blue-200" />
-        </div>
+    <div className="relative min-h-[80vh] flex items-center justify-center overflow-hidden px-4" dir="rtl">
+      {/* Night sky: a soft glow and a few scattered stars. */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
+        {[
+          { top: "18%", left: "12%", size: 3 }, { top: "28%", left: "82%", size: 2 },
+          { top: "62%", left: "20%", size: 2 }, { top: "72%", left: "70%", size: 3 },
+          { top: "12%", left: "58%", size: 2 }, { top: "82%", left: "42%", size: 2 },
+        ].map((star, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-foreground/50"
+            style={{ top: star.top, left: star.left, width: star.size, height: star.size }}
+          />
+        ))}
+      </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border mb-4">
-          <span className="text-xs font-bold text-muted-foreground">صفحه پیدا نشد</span>
-        </div>
+      <div className="relative text-center max-w-xl">
+        <p className="text-[110px] sm:text-[150px] leading-none font-black tracking-tight text-primary drop-shadow-[0_0_35px_hsl(var(--primary)/0.45)]">
+          ۴۰۴
+        </p>
+        <div className="text-6xl mb-4" aria-hidden>🚀</div>
 
-        <h1 className="text-3xl font-black text-foreground mb-3">اوه! اینجا چیزی نیست</h1>
+        <h1 className="text-2xl sm:text-3xl font-black mb-3">صفحه‌ی موردنظر پیدا نشد!</h1>
         <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-          صفحه موردنظر پیدا نشد.
-          <br />
-          شاید آدرس اشتباه وارد شده یا صفحه حذف شده است.
+          متأسفانه صفحه‌ای که دنبال آن هستید وجود ندارد یا جابه‌جا شده است.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/">
-            <Button className="w-full sm:w-auto rounded-xl gap-2 font-bold">
+            <Button className="w-full sm:w-auto rounded-xl gap-2 font-bold px-8">
               <Home className="w-4 h-4" />
-              بازگشت به خانه
+              بازگشت به صفحه اصلی
             </Button>
           </Link>
           <Link href="/shop">
-            <Button variant="outline" className="w-full sm:w-auto rounded-xl gap-2 font-bold">
+            <Button variant="outline" className="w-full sm:w-auto rounded-xl gap-2 font-bold px-8">
               <ShoppingBag className="w-4 h-4" />
-              ادامه خرید
-            </Button>
-          </Link>
-          <Link href="/shop">
-            <Button variant="ghost" className="w-full sm:w-auto rounded-xl gap-2 font-bold text-muted-foreground">
-              <Search className="w-4 h-4" />
-              جستجو در محصولات
+              رفتن به فروشگاه
             </Button>
           </Link>
         </div>

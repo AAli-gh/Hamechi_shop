@@ -27,11 +27,14 @@ const LEGAL_LINKS = [
   { href: "/return-policy", label: "سیاست مرجوعی" },
 ];
 
+/** Iranian bank gateways and card networks the store plans to accept. */
+const PAYMENT_METHODS = ["شاپرک", "بانک ملت", "زرین‌پال", "سامان", "ویزا", "مسترکارت"];
+
 const TRUST_BADGES = [
-  { icon: Shield, label: "خرید امن", sub: "درگاه بانکی معتبر", color: "text-blue-500", bg: "bg-blue-50" },
-  { icon: Truck, label: "ارسال سریع", sub: "تحویل ۲۴ تا ۷۲ ساعته", color: "text-green-500", bg: "bg-green-50" },
-  { icon: RotateCcw, label: "ضمانت بازگشت", sub: "تا ۱۴ روز پس از خرید", color: "text-orange-500", bg: "bg-orange-50" },
-  { icon: CreditCard, label: "پرداخت آنلاین", sub: "امن و مطمئن", color: "text-purple-500", bg: "bg-purple-50" },
+  { icon: Shield, label: "خرید امن", sub: "درگاه بانکی معتبر", color: "text-sky-300", bg: "bg-sky-500/15" },
+  { icon: Truck, label: "ارسال سریع", sub: "تحویل ۲۴ تا ۷۲ ساعته", color: "text-emerald-400", bg: "bg-emerald-500/15" },
+  { icon: RotateCcw, label: "ضمانت بازگشت", sub: "تا ۱۴ روز پس از خرید", color: "text-primary", bg: "bg-primary/10" },
+  { icon: CreditCard, label: "پرداخت آنلاین", sub: "امن و مطمئن", color: "text-violet-300", bg: "bg-violet-500/15" },
 ];
 
 export function Footer() {
@@ -67,11 +70,11 @@ export function Footer() {
     <footer className="w-full" dir="rtl">
 
       {/* ── Trust badges ── */}
-      <div className="border-t border-orange-100 bg-gradient-to-b from-orange-50/60 to-white">
+      <div className="border-t border-border bg-gradient-to-b from-primary/10 to-card">
         <div className="container mx-auto max-w-6xl px-4 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {TRUST_BADGES.map(({ icon: Icon, label, sub, color, bg }) => (
-              <div key={label} className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-orange-50 shadow-sm">
+              <div key={label} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border shadow-sm">
                 <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center flex-shrink-0`}>
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
@@ -86,7 +89,7 @@ export function Footer() {
       </div>
 
       {/* ── Newsletter ── */}
-      <div className="bg-gradient-to-l from-primary/90 to-amber-500/90 py-10 px-4">
+      <div className="bg-gradient-to-l from-primary/90 to-teal-400/90 py-10 px-4">
         <div className="container mx-auto max-w-2xl text-center">
           <div className="text-3xl mb-2">💌</div>
           <h3 className="text-xl font-black text-white mb-1">عضو خبرنامه بازارچه شوید</h3>
@@ -94,7 +97,7 @@ export function Footer() {
             اول از تخفیف‌ها و محصولات جدید باخبر شوید
           </p>
           {subscribed ? (
-            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 text-white font-medium text-sm">
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-card text-white font-medium text-sm">
               ✅ {subMessage || "ثبت‌نام شما با موفقیت انجام شد!"}
             </div>
           ) : (
@@ -105,13 +108,13 @@ export function Footer() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="ایمیل خود را وارد کنید"
                 required
-                className="flex-1 h-11 px-4 rounded-xl bg-white/20 border border-white/30 text-white placeholder:text-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 backdrop-blur-sm"
+                className="flex-1 h-11 px-4 rounded-xl bg-card border border-white/30 text-white placeholder:text-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 backdrop-blur-sm"
                 dir="ltr"
               />
               <button
                 type="submit"
                 disabled={subscribeMutation.isPending}
-                className="h-11 px-5 rounded-xl bg-white text-primary font-bold text-sm hover:bg-white/90 transition-colors flex items-center gap-1.5 flex-shrink-0 disabled:opacity-70"
+                className="h-11 px-5 rounded-xl bg-card text-primary font-bold text-sm hover:bg-card transition-colors flex items-center gap-1.5 flex-shrink-0 disabled:opacity-70"
               >
                 <Send className="w-4 h-4" />
                 {subscribeMutation.isPending ? "..." : "عضویت"}
@@ -122,7 +125,7 @@ export function Footer() {
       </div>
 
       {/* ── Main footer body ── */}
-      <div className="bg-slate-900 text-slate-300 py-14 px-4">
+      <div className="bg-card/50 text-muted-foreground py-14 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10">
 
@@ -134,7 +137,7 @@ export function Footer() {
                 </div>
                 <span className="font-black text-2xl text-white">بازارچه</span>
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed mb-5 max-w-xs">
+              <p className="text-muted-foreground/40 text-sm leading-relaxed mb-5 max-w-xs">
                 فروشگاه اینترنتی همه‌چیز؛ از کالای دیجیتال و پوشاک تا لوازم خانه و ورزش. با ضمانت اصالت کالا و ارسال سریع به سراسر ایران.
               </p>
 
@@ -145,7 +148,7 @@ export function Footer() {
                   { icon: Mail, text: "support@bazarcheh.ir" },
                   { icon: MapPin, text: "تهران، خیابان ولیعصر، ساختمان بازارچه" },
                 ].map(({ icon: Icon, text }) => (
-                  <div key={text} className="flex items-center gap-2.5 text-sm text-slate-400">
+                  <div key={text} className="flex items-center gap-2.5 text-sm text-muted-foreground/40">
                     <Icon className="w-4 h-4 text-primary flex-shrink-0" />
                     <span>{text}</span>
                   </div>
@@ -155,13 +158,13 @@ export function Footer() {
               {/* Social */}
               <div className="flex gap-3 mt-5">
                 {[
-                  { Icon: Instagram, label: "اینستاگرام", color: "hover:bg-orange-500" },
+                  { Icon: Instagram, label: "اینستاگرام", color: "hover:bg-primary" },
                   { Icon: Send, label: "تلگرام", color: "hover:bg-blue-500" },
                 ].map(({ Icon, label, color }) => (
                   <button
                     key={label}
                     aria-label={label}
-                    className={`w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center ${color} hover:text-white transition-colors`}
+                    className={`w-9 h-9 rounded-xl bg-muted flex items-center justify-center ${color} hover:text-foreground transition-colors`}
                   >
                     <Icon className="w-4 h-4" />
                   </button>
@@ -169,7 +172,7 @@ export function Footer() {
                 {/* WhatsApp */}
                 <button
                   aria-label="واتساپ"
-                  className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors text-sm font-bold"
+                  className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-emerald-500 hover:text-foreground transition-colors text-sm font-bold"
                 >
                   W
                 </button>
@@ -182,7 +185,7 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {QUICK_LINKS.map(({ href, label }) => (
                   <li key={href}>
-                    <Link href={href} className="text-sm text-slate-400 hover:text-primary transition-colors flex items-center gap-1 group">
+                    <Link href={href} className="text-sm text-muted-foreground/40 hover:text-primary transition-colors flex items-center gap-1 group">
                       <ChevronLeft className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200 text-primary" />
                       {label}
                     </Link>
@@ -198,7 +201,7 @@ export function Footer() {
                 {cats.length > 0
                   ? cats.map(c => (
                     <li key={c.id}>
-                      <Link href={`/shop?category=${c.slug}`} className="text-sm text-slate-400 hover:text-primary transition-colors flex items-center gap-1 group">
+                      <Link href={`/shop?category=${c.slug}`} className="text-sm text-muted-foreground/40 hover:text-primary transition-colors flex items-center gap-1 group">
                         <ChevronLeft className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200 text-primary" />
                         {c.nameFa}
                       </Link>
@@ -206,7 +209,7 @@ export function Footer() {
                   ))
                   : ["کالای دیجیتال", "مد و پوشاک", "خانه و آشپزخانه", "زیبایی و سلامت", "ورزش و سفر"].map(c => (
                     <li key={c}>
-                      <Link href="/shop" className="text-sm text-slate-400 hover:text-primary transition-colors">{c}</Link>
+                      <Link href="/shop" className="text-sm text-muted-foreground/40 hover:text-primary transition-colors">{c}</Link>
                     </li>
                   ))
                 }
@@ -219,7 +222,7 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {SUPPORT_LINKS.map(({ href, label }) => (
                   <li key={label}>
-                    <Link href={href} className="text-sm text-slate-400 hover:text-primary transition-colors flex items-center gap-1 group">
+                    <Link href={href} className="text-sm text-muted-foreground/40 hover:text-primary transition-colors flex items-center gap-1 group">
                       <ChevronLeft className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200 text-primary" />
                       {label}
                     </Link>
@@ -228,9 +231,9 @@ export function Footer() {
               </ul>
 
               {/* Working hours box */}
-              <div className="mt-6 p-4 rounded-2xl bg-slate-800 border border-slate-700">
-                <p className="text-xs font-semibold text-white mb-2">ساعات پشتیبانی</p>
-                <p className="text-xs text-slate-400">شنبه تا پنجشنبه</p>
+              <div className="mt-6 p-4 rounded-2xl bg-muted border border-border">
+                <p className="text-xs font-semibold text-foreground mb-2">ساعات پشتیبانی</p>
+                <p className="text-xs text-muted-foreground">شنبه تا پنجشنبه</p>
                 <p className="text-sm font-bold text-primary">۹:۰۰ – ۱۸:۰۰</p>
               </div>
             </div>
@@ -238,9 +241,24 @@ export function Footer() {
         </div>
       </div>
 
+      {/* ── Payment methods ── */}
+      <div className="border-t border-border/60 py-5 px-4">
+        <div className="container mx-auto max-w-6xl flex flex-wrap items-center justify-center gap-3">
+          <span className="text-xs font-semibold text-muted-foreground ml-2">روش‌های پرداخت:</span>
+          {PAYMENT_METHODS.map((name) => (
+            <span
+              key={name}
+              className="px-4 h-10 rounded-xl border border-border bg-card/60 text-xs font-bold text-foreground/80 flex items-center"
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* ── Bottom bar ── */}
-      <div className="bg-slate-950 py-4 px-4">
-        <div className="container mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div className="bg-background py-4 px-4 border-t border-border/60">
+        <div className="container mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-foreground">
           <p>
             © ۱۴۰۵ بازارچه. تمامی حقوق محفوظ است.
           </p>
@@ -249,7 +267,7 @@ export function Footer() {
           </p>
           <div className="flex flex-wrap gap-4">
             {LEGAL_LINKS.map(({ href, label }) => (
-              <Link key={href} href={href} className="hover:text-slate-300 transition-colors">{label}</Link>
+              <Link key={href} href={href} className="hover:text-muted-foreground/40 transition-colors">{label}</Link>
             ))}
           </div>
         </div>

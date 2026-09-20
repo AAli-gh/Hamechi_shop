@@ -64,11 +64,11 @@ export default function AdminReports() {
 
   const s = data?.summary;
   const statCards = s ? [
-    { label: "درآمد کل", value: `${(s.revenue / 1_000_000).toFixed(1)} م.ت`, icon: DollarSign, growth: s.revenueGrowth, color: "text-emerald-600 bg-emerald-50" },
-    { label: "تعداد سفارشات", value: s.orders.toLocaleString("fa-IR"), icon: ShoppingBag, growth: s.ordersGrowth, color: "text-blue-600 bg-blue-50" },
-    { label: "میانگین سفارش", value: `${Math.round(s.avgOrderValue / 1000).toLocaleString("fa-IR")} ه.ت`, icon: Target, growth: null, color: "text-purple-600 bg-purple-50" },
-    { label: "مشتریان جدید", value: s.newCustomers.toLocaleString("fa-IR"), icon: Users, growth: null, color: "text-amber-600 bg-amber-50" },
-    { label: "سود تخمینی", value: `${(s.estimatedProfit / 1_000_000).toFixed(1)} م.ت`, icon: TrendingUp, growth: null, color: "text-amber-600 bg-amber-50" },
+    { label: "درآمد کل", value: `${(s.revenue / 1_000_000).toFixed(1)} م.ت`, icon: DollarSign, growth: s.revenueGrowth, color: "text-emerald-400 bg-emerald-500/15" },
+    { label: "تعداد سفارشات", value: s.orders.toLocaleString("fa-IR"), icon: ShoppingBag, growth: s.ordersGrowth, color: "text-sky-300 bg-sky-500/15" },
+    { label: "میانگین سفارش", value: `${Math.round(s.avgOrderValue / 1000).toLocaleString("fa-IR")} ه.ت`, icon: Target, growth: null, color: "text-violet-300 bg-violet-500/15" },
+    { label: "مشتریان جدید", value: s.newCustomers.toLocaleString("fa-IR"), icon: Users, growth: null, color: "text-amber-300 bg-amber-500/10" },
+    { label: "سود تخمینی", value: `${(s.estimatedProfit / 1_000_000).toFixed(1)} م.ت`, icon: TrendingUp, growth: null, color: "text-amber-300 bg-amber-500/10" },
     { label: "حاشیه سود", value: `${s.profitMargin}٪`, icon: Package, growth: null, color: "text-cyan-600 bg-cyan-50" },
   ] : [];
 
@@ -111,7 +111,7 @@ export default function AdminReports() {
                     <card.icon className="w-5 h-5" />
                   </div>
                   {card.growth !== null && (
-                    <div className={`flex items-center gap-1 text-xs font-bold ${card.growth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                    <div className={`flex items-center gap-1 text-xs font-bold ${card.growth >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                       {card.growth >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                       {Math.abs(card.growth).toFixed(1)}٪
                     </div>
@@ -172,13 +172,13 @@ export default function AdminReports() {
             <div className="rounded-2xl border bg-card overflow-hidden">
               <div className="px-5 py-4 border-b bg-muted/30 font-bold">خلاصه موجودی</div>
               <div className="p-4 grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-red-50 p-3 text-center">
-                  <div className="text-2xl font-black text-red-600">{s.outOfStock.toLocaleString("fa-IR")}</div>
-                  <div className="text-xs text-red-600 mt-1">ناموجود</div>
+                <div className="rounded-xl bg-red-500/15 p-3 text-center">
+                  <div className="text-2xl font-black text-red-400">{s.outOfStock.toLocaleString("fa-IR")}</div>
+                  <div className="text-xs text-red-400 mt-1">ناموجود</div>
                 </div>
-                <div className="rounded-xl bg-amber-50 p-3 text-center">
-                  <div className="text-2xl font-black text-amber-600">{s.lowStock.toLocaleString("fa-IR")}</div>
-                  <div className="text-xs text-amber-600 mt-1">موجودی کم</div>
+                <div className="rounded-xl bg-amber-500/10 p-3 text-center">
+                  <div className="text-2xl font-black text-amber-300">{s.lowStock.toLocaleString("fa-IR")}</div>
+                  <div className="text-xs text-amber-300 mt-1">موجودی کم</div>
                 </div>
               </div>
             </div>

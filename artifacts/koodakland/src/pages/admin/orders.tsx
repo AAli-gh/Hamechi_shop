@@ -16,9 +16,9 @@ const STATUSES = [
 ];
 
 const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-700", processing: "bg-blue-100 text-blue-700",
-  shipped: "bg-purple-100 text-purple-700", delivered: "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-700",
+  pending: "bg-yellow-500/15 text-yellow-300", processing: "bg-sky-500/15 text-sky-300",
+  shipped: "bg-violet-500/15 text-violet-300", delivered: "bg-emerald-500/15 text-emerald-400",
+  cancelled: "bg-red-500/15 text-red-400",
 };
 
 /** addressSnapshot is JSON written at checkout; older orders may hold plain text. */
@@ -42,9 +42,9 @@ function OrderDetails({ order }: { order: Order }) {
         {order.notes && <div className="col-span-2"><span className="text-muted-foreground">توضیحات: </span>{order.notes}</div>}
       </div>
       {order.returnRequestedAt && (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-          <p className="font-bold text-amber-800">درخواست مرجوعی — {new Date(order.returnRequestedAt).toLocaleDateString("fa-IR")}</p>
-          {order.returnReason && <p className="text-amber-800/80 mt-1">{order.returnReason}</p>}
+        <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3">
+          <p className="font-bold text-amber-300">درخواست مرجوعی — {new Date(order.returnRequestedAt).toLocaleDateString("fa-IR")}</p>
+          {order.returnReason && <p className="text-amber-200/80 mt-1">{order.returnReason}</p>}
         </div>
       )}
       <ul className="flex flex-col divide-y divide-border/40 max-h-56 overflow-y-auto">
@@ -63,7 +63,7 @@ function OrderDetails({ order }: { order: Order }) {
       </ul>
       <div className="flex flex-col gap-1 border-t border-border/50 pt-2">
         <div className="flex justify-between"><span className="text-muted-foreground">جمع کالاها</span><span>{order.subtotal.toLocaleString("fa-IR")}</span></div>
-        {order.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-green-600">-{order.discount.toLocaleString("fa-IR")}</span></div>}
+        {order.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-emerald-400">-{order.discount.toLocaleString("fa-IR")}</span></div>}
         <div className="flex justify-between"><span className="text-muted-foreground">ارسال ({order.shippingMethod || "—"})</span><span>{order.shippingCost === 0 ? "رایگان" : order.shippingCost.toLocaleString("fa-IR")}</span></div>
         <div className="flex justify-between font-black"><span>مبلغ کل (تومان)</span><span className="text-primary">{order.total.toLocaleString("fa-IR")}</span></div>
       </div>

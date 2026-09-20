@@ -44,9 +44,9 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
 
   return (
     <div
-      className="absolute top-[calc(100%+8px)] right-0 left-0 z-[200] rounded-2xl shadow-2xl border border-orange-100/60 overflow-hidden"
+      className="absolute top-[calc(100%+8px)] right-0 left-0 z-[200] rounded-2xl shadow-2xl border border-border overflow-hidden"
       style={{
-        background: "rgba(255,255,255,0.97)",
+        background: "hsl(var(--popover))",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
       }}
@@ -58,8 +58,8 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
         </div>
       ) : results.length === 0 && query.length > 1 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-8 text-center px-4">
-          <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
-            <Package className="w-6 h-6 text-orange-300" />
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <Package className="w-6 h-6 text-primary" />
           </div>
           <p className="text-sm font-medium text-foreground">نتیجه‌ای یافت نشد</p>
           <p className="text-xs text-muted-foreground">برای «{query}» محصولی پیدا نشد</p>
@@ -77,9 +77,9 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
                   <li key={p.id}>
                     <button
                       onClick={() => handleProductClick(p.slug)}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50/80 transition-colors text-right group"
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/10 transition-colors text-right group"
                     >
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-orange-50 flex-shrink-0 border border-orange-100">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-primary/10 flex-shrink-0 border border-border">
                         {p.images[0] ? (
                           <img
                             src={imageUrl(p.images[0], 160)}
@@ -88,7 +88,7 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-5 h-5 text-orange-200" />
+                            <Package className="w-5 h-5 text-primary" />
                           </div>
                         )}
                       </div>
@@ -117,7 +117,7 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
           )}
 
           {categories.length > 0 && (
-            <div className="border-t border-orange-50 px-4 pt-3 pb-2">
+            <div className="border-t border-border px-4 pt-3 pb-2">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">دسته‌بندی</span>
               <div className="flex flex-wrap gap-2 mt-2">
                 {categories.slice(0, 4).map((c) => (
@@ -127,7 +127,7 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
                       navigate(`/shop?category=${c.slug}`);
                       onClose();
                     }}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors border border-orange-100"
+                    className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/10 transition-colors border border-border"
                   >
                     {c.nameFa} ({c.productCount})
                   </button>
@@ -137,10 +137,10 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
           )}
 
           {query.length > 1 && total > 6 && (
-            <div className="border-t border-orange-50">
+            <div className="border-t border-border">
               <button
                 onClick={handleViewAll}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-primary hover:bg-orange-50/60 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
               >
                 مشاهده همه {total} نتیجه
                 <ArrowLeft className="w-4 h-4 -rotate-180" />
@@ -156,15 +156,15 @@ function ResultsDropdown({ results, categories, query, total, isLoading, onClose
 function PopularTerms({ onSelect }: { onSelect: (t: string) => void }) {
   return (
     <div
-      className="absolute top-[calc(100%+8px)] right-0 left-0 z-[200] rounded-2xl shadow-2xl border border-orange-100/60 overflow-hidden"
+      className="absolute top-[calc(100%+8px)] right-0 left-0 z-[200] rounded-2xl shadow-2xl border border-border overflow-hidden"
       style={{
-        background: "rgba(255,255,255,0.97)",
+        background: "hsl(var(--popover))",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
       }}
     >
       <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-orange-400" />
+        <TrendingUp className="w-4 h-4 text-primary" />
         <span className="text-xs font-semibold text-muted-foreground">جستجوهای پرطرفدار</span>
       </div>
       <ul className="pb-2">
@@ -172,7 +172,7 @@ function PopularTerms({ onSelect }: { onSelect: (t: string) => void }) {
           <li key={term}>
             <button
               onClick={() => onSelect(term)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-orange-50/80 transition-colors text-right"
+              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-primary/10 transition-colors text-right"
             >
               <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
               <span className="text-sm text-foreground">{term}</span>
@@ -218,12 +218,12 @@ export function DesktopSearch() {
       <div
         className={`relative flex items-center transition-all duration-300 ${open ? "ring-2 ring-primary/30 shadow-lg shadow-primary/10" : "ring-1 ring-orange-100"} rounded-2xl overflow-hidden`}
         style={{
-          background: "rgba(255,248,252,0.85)",
+          background: "hsl(var(--muted))",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
         }}
       >
-        <Search className="absolute right-4 w-4 h-4 text-orange-400 pointer-events-none z-10" />
+        <Search className="absolute right-4 w-4 h-4 text-primary pointer-events-none z-10" />
         <input
           ref={inputRef}
           type="text"
@@ -231,13 +231,13 @@ export function DesktopSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setOpen(true)}
           placeholder="جستجو در بازارچه..."
-          className="w-full h-11 bg-transparent pr-11 pl-4 text-sm placeholder:text-orange-300 text-foreground focus:outline-none"
+          className="w-full h-11 bg-transparent pr-11 pl-4 text-sm placeholder:text-primary text-foreground focus:outline-none"
           dir="rtl"
         />
         {query && (
           <button
             onClick={() => { setQuery(""); setDebouncedQuery(""); inputRef.current?.focus(); }}
-            className="absolute left-3 p-1 rounded-full hover:bg-orange-100 transition-colors"
+            className="absolute left-3 p-1 rounded-full hover:bg-primary/10 transition-colors"
           >
             <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
@@ -307,45 +307,45 @@ export function MobileSearchModal() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 hover:bg-orange-50"
+        className="relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 hover:bg-primary/10"
         style={{
-          background: "rgba(255,228,240,0.6)",
+          background: "hsl(var(--muted))",
           backdropFilter: "blur(8px)",
         }}
         aria-label="جستجو"
       >
-        <Search className="w-4.5 h-4.5 text-orange-500" style={{ width: 18, height: 18 }} />
+        <Search className="w-4.5 h-4.5 text-primary" style={{ width: 18, height: 18 }} />
       </button>
 
       {open && (
         <div
           className="fixed inset-0 z-[300] flex flex-col"
           style={{
-            background: "rgba(255,240,248,0.97)",
+            background: "hsl(var(--popover))",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
           }}
         >
-          <div className="flex items-center gap-3 px-4 pt-safe pt-4 pb-3 border-b border-orange-100">
+          <div className="flex items-center gap-3 px-4 pt-safe pt-4 pb-3 border-b border-border">
             <button
               onClick={handleClose}
-              className="p-2 rounded-full hover:bg-orange-100 transition-colors flex-shrink-0"
+              className="p-2 rounded-full hover:bg-primary/10 transition-colors flex-shrink-0"
             >
               <X className="w-5 h-5 text-foreground" />
             </button>
 
             <div
               className="flex-1 flex items-center gap-2 px-4 h-11 rounded-2xl ring-2 ring-primary/30"
-              style={{ background: "rgba(255,255,255,0.9)" }}
+              style={{ background: "hsl(var(--card))" }}
             >
-              <Search className="w-4 h-4 text-orange-400 flex-shrink-0" />
+              <Search className="w-4 h-4 text-primary flex-shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="جستجو کنید..."
-                className="flex-1 bg-transparent text-sm placeholder:text-orange-300 text-foreground focus:outline-none text-right"
+                className="flex-1 bg-transparent text-sm placeholder:text-primary text-foreground focus:outline-none text-right"
                 dir="rtl"
               />
               {query && (
@@ -365,8 +365,8 @@ export function MobileSearchModal() {
                 </div>
               ) : (data?.products ?? []).length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                  <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
-                    <Package className="w-8 h-8 text-orange-300" />
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Package className="w-8 h-8 text-primary" />
                   </div>
                   <p className="font-medium text-foreground">نتیجه‌ای یافت نشد</p>
                   <p className="text-sm text-muted-foreground">برای «{debouncedQuery}» محصولی پیدا نشد</p>
@@ -379,14 +379,14 @@ export function MobileSearchModal() {
                       <button
                         key={p.id}
                         onClick={() => { navigate(`/product/${p.slug}`); handleClose(); }}
-                        className="flex items-center gap-4 p-3 rounded-2xl bg-white/80 border border-orange-100 hover:border-primary/40 hover:shadow-md transition-all text-right"
+                        className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all text-right"
                       >
-                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-orange-50 flex-shrink-0 border border-orange-100">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-primary/10 flex-shrink-0 border border-border">
                           {p.images[0] ? (
                             <img src={imageUrl(p.images[0], 160)} alt={p.nameFa} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-7 h-7 text-orange-200" />
+                              <Package className="w-7 h-7 text-primary" />
                             </div>
                           )}
                         </div>
@@ -423,7 +423,7 @@ export function MobileSearchModal() {
             ) : (
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-4 h-4 text-orange-400" />
+                  <TrendingUp className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">جستجوهای پرطرفدار</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -431,7 +431,7 @@ export function MobileSearchModal() {
                     <button
                       key={term}
                       onClick={() => setQuery(term)}
-                      className="px-4 py-2 rounded-full text-sm font-medium bg-white/80 border border-orange-100 text-foreground hover:bg-orange-50 hover:border-orange-200 transition-colors"
+                      className="px-4 py-2 rounded-full text-sm font-medium bg-card border border-border text-foreground hover:bg-primary/10 hover:border-border transition-colors"
                     >
                       {term}
                     </button>

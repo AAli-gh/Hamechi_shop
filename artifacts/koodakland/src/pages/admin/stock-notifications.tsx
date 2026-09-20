@@ -91,9 +91,9 @@ export default function AdminStockNotifications() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {[
-          { label: "کل درخواست‌ها", value: data?.total ?? 0, color: "bg-blue-50 text-blue-700" },
-          { label: "در انتظار", value: data?.pending ?? 0, color: "bg-amber-50 text-amber-700" },
-          { label: "محصولات ناموجود", value: data?.byProduct.length ?? 0, color: "bg-red-50 text-red-700" },
+          { label: "کل درخواست‌ها", value: data?.total ?? 0, color: "bg-sky-500/15 text-sky-300" },
+          { label: "در انتظار", value: data?.pending ?? 0, color: "bg-amber-500/10 text-amber-300" },
+          { label: "محصولات ناموجود", value: data?.byProduct.length ?? 0, color: "bg-red-500/15 text-red-400" },
         ].map(card => (
           <div key={card.label} className={`rounded-2xl p-4 ${card.color} border border-current/10`}>
             <div className="text-2xl font-black">{card.value.toLocaleString("fa-IR")}</div>

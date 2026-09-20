@@ -84,24 +84,24 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: "#e25b12",
-    colorForeground: "#33291f",
-    colorMutedForeground: "#7a6a5c",
-    colorBackground: "#fffbf7",
-    colorInput: "#fff6ee",
-    colorInputForeground: "#33291f",
-    colorNeutral: "#efe0d2",
+    colorPrimary: "#17a398",
+    colorForeground: "#e6f1f2",
+    colorMutedForeground: "#8fa3a8",
+    colorBackground: "#07161c",
+    colorInput: "#0c2028",
+    colorInputForeground: "#e6f1f2",
+    colorNeutral: "#1b343c",
     colorDanger: "#dc2626",
     fontFamily: "'Vazirmatn Variable', Tahoma, sans-serif",
     borderRadius: "0.85rem",
   },
   elements: {
-    cardBox: "bg-white rounded-3xl w-[440px] max-w-full overflow-hidden shadow-xl",
+    cardBox: "bg-card rounded-3xl w-[440px] max-w-full overflow-hidden shadow-xl",
     card: "!shadow-none !border-0 !bg-transparent",
     footer: "!shadow-none !border-0 !bg-transparent",
     formButtonPrimary: "bg-primary hover:bg-primary/90",
-    formFieldInput: "rounded-xl border-orange-100 bg-orange-50/40",
-    socialButtonsBlockButton: "rounded-xl border-orange-100",
+    formFieldInput: "rounded-xl border-border bg-primary/10",
+    socialButtonsBlockButton: "rounded-xl border-border",
   },
 };
 
@@ -189,7 +189,7 @@ function SignUpPage() {
 function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
         <AuthProvider>
           <CartProvider>
             <TooltipProvider>

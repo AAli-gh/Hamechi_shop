@@ -124,7 +124,7 @@ export default function AdminProducts() {
                     {p.salePrice && <span className="text-xs text-muted-foreground line-through mr-2">{p.salePrice.toLocaleString("fa-IR")}</span>}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-100 text-red-600" : p.stock < 5 ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>{p.stock.toLocaleString("fa-IR")}</span>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-500/15 text-red-400" : p.stock < 5 ? "bg-primary/10 text-primary" : "bg-emerald-500/15 text-emerald-400"}`}>{p.stock.toLocaleString("fa-IR")}</span>
                     {p.variants.length > 0 && <span className="text-[11px] text-muted-foreground mr-2">{p.variants.length.toLocaleString("fa-IR")} تنوع</span>}
                   </td>
                   <td className="px-4 py-3">

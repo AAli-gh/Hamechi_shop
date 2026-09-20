@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Truck, Shield, CheckCircle2 } from "lucide-react";
+import { Truck, Shield, CheckCircle2, Check } from "lucide-react";
 
 /** Mirrors the server's rule in api-server/src/lib/pricing.ts. */
 function shippingCostFor(method: ShippingMethod, subtotal: number): number {
@@ -36,7 +36,6 @@ export default function Checkout() {
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number } | null>(null);
   const [notes, setNotes] = useState("");
-  const [step, setStep] = useState(1);
   const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
   const [saveAddress, setSaveAddress] = useState(true);
 
@@ -62,6 +61,7 @@ export default function Checkout() {
   }, [addresses]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeShipping = shippingMethods?.find(m => m.id.toString() === selectedShipping);
+  const addressComplete = !!(form.name && form.phone && form.province && form.city && form.street && form.postalCode);
   const subtotal = cart?.subtotal || 0;
   const shippingCost = activeShipping ? shippingCostFor(activeShipping, subtotal) : 0;
   const discountAmount = appliedDiscount?.amount ?? 0;
@@ -126,7 +126,40 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <h1 className="text-2xl font-black mb-8">تکمیل خرید</h1>
+        <h1 className="text-2xl font-black mb-6">تکمیل خرید</h1>
+
+        {/* Where the customer is in the purchase, mirroring the design's stepper. */}
+        <ol className="flex items-center gap-2 sm:gap-4 mb-8 overflow-x-auto" aria-label="مراحل خرید">
+          {[
+            { label: "سبد خرید", done: true },
+            { label: "اطلاعات ارسال", done: addressComplete },
+            { label: "پرداخت", done: false, current: addressComplete && !!activeShipping },
+            { label: "تکمیل سفارش", done: false },
+          ].map((stepItem, index, all) => {
+            const state = stepItem.done ? "done" : stepItem.current ? "current" : "todo";
+            return (
+              <li key={stepItem.label} className="flex items-center gap-2 sm:gap-4 shrink-0">
+                <span className="flex items-center gap-2">
+                  <span
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                      state === "done"
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : state === "current"
+                          ? "border-primary text-primary"
+                          : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {state === "done" ? <Check className="w-4 h-4" /> : (index + 1).toLocaleString("fa-IR")}
+                  </span>
+                  <span className={`text-xs sm:text-sm font-medium ${state === "todo" ? "text-muted-foreground" : "text-foreground"}`}>
+                    {stepItem.label}
+                  </span>
+                </span>
+                {index < all.length - 1 && <span className={`h-0.5 w-6 sm:w-12 ${stepItem.done ? "bg-primary" : "bg-border"}`} />}
+              </li>
+            );
+          })}
+        </ol>
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 flex flex-col gap-6">
@@ -264,7 +297,7 @@ export default function Checkout() {
               <Separator className="my-3" />
               <div className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">جمع کالاها</span><span>{subtotal.toLocaleString("fa-IR")} تومان</span></div>
-                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-green-600">-{discountAmount.toLocaleString("fa-IR")} تومان</span></div>}
+                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">تخفیف</span><span className="text-emerald-400">-{discountAmount.toLocaleString("fa-IR")} تومان</span></div>}
                 <div className="flex justify-between"><span className="text-muted-foreground">هزینه ارسال</span><span>{!activeShipping ? "انتخاب نشده" : shippingCost === 0 ? "رایگان" : `${shippingCost.toLocaleString("fa-IR")} تومان`}</span></div>
                 <Separator />
                 <div className="flex justify-between font-black text-base"><span>مبلغ نهایی</span><span className="text-primary">{total.toLocaleString("fa-IR")} تومان</span></div>

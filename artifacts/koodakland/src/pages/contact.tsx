@@ -29,14 +29,14 @@ export default function Contact() {
     <div className="min-h-screen" dir="rtl">
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-gradient-to-bl from-orange-50 via-white to-blue-50/30 py-16 px-4">
+      <section className="relative overflow-hidden bg-gradient-to-bl from-primary/10 via-card to-primary/5 py-16 px-4">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-8 right-20 text-5xl opacity-20 animate-bounce" style={{ animationDuration: "3s" }}>📞</div>
           <div className="absolute top-12 left-28 text-4xl opacity-15 animate-bounce" style={{ animationDuration: "4s", animationDelay: "1s" }}>💌</div>
           <div className="absolute bottom-8 left-20 text-4xl opacity-15 animate-bounce" style={{ animationDuration: "5s" }}>🌸</div>
         </div>
         <div className="container mx-auto max-w-3xl text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 text-orange-600 text-sm font-medium mb-5">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-5">
             <MessageSquare className="w-4 h-4" />
             <span>تماس با بازارچه</span>
           </div>
@@ -55,12 +55,12 @@ export default function Contact() {
         <div className="container mx-auto max-w-5xl">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: Phone, color: "bg-green-100 text-green-600", label: "تلفن پشتیبانی", value: "۰۲۱-۱۲۳۴۵۶۷۸", sub: "شنبه تا پنجشنبه ۹–۱۸" },
-              { icon: Mail, color: "bg-blue-100 text-blue-600", label: "ایمیل", value: "support@bazarcheh.ir", sub: "پاسخ در ۲۴ ساعت" },
-              { icon: MapPin, color: "bg-orange-100 text-orange-600", label: "آدرس", value: "تهران، خیابان ولیعصر", sub: "ساختمان بازارچه، طبقه ۲" },
-              { icon: Clock, color: "bg-purple-100 text-purple-600", label: "ساعات کاری", value: "شنبه تا پنجشنبه", sub: "ساعت ۹:۰۰ تا ۱۸:۰۰" },
+              { icon: Phone, color: "bg-emerald-500/15 text-emerald-400", label: "تلفن پشتیبانی", value: "۰۲۱-۱۲۳۴۵۶۷۸", sub: "شنبه تا پنجشنبه ۹–۱۸" },
+              { icon: Mail, color: "bg-sky-500/15 text-sky-300", label: "ایمیل", value: "support@bazarcheh.ir", sub: "پاسخ در ۲۴ ساعت" },
+              { icon: MapPin, color: "bg-primary/10 text-primary", label: "آدرس", value: "تهران، خیابان ولیعصر", sub: "ساختمان بازارچه، طبقه ۲" },
+              { icon: Clock, color: "bg-violet-500/15 text-violet-300", label: "ساعات کاری", value: "شنبه تا پنجشنبه", sub: "ساعت ۹:۰۰ تا ۱۸:۰۰" },
             ].map(({ icon: Icon, color, label, value, sub }) => (
-              <div key={label} className="text-center p-6 rounded-2xl bg-white border border-orange-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+              <div key={label} className="text-center p-6 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                 <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mx-auto mb-3`}>
                   <Icon className="w-6 h-6" />
                 </div>
@@ -80,14 +80,14 @@ export default function Contact() {
 
             {/* Contact Form */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-3xl border border-orange-100 shadow-sm p-8">
+              <div className="bg-card rounded-3xl border border-border shadow-sm p-8">
                 <h2 className="text-2xl font-black text-foreground mb-1">ارسال پیام</h2>
                 <p className="text-sm text-muted-foreground mb-6">فرم زیر را تکمیل کنید. در اسرع وقت پاسخ می‌دهیم.</p>
 
                 {sent ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-                      <CheckCircle2 className="w-10 h-10 text-green-500" />
+                    <div className="w-20 h-20 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                      <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground">پیام شما ارسال شد!</h3>
                     <p className="text-muted-foreground text-sm">در کمترین زمان ممکن پاسخ می‌دهیم.</p>
@@ -108,7 +108,7 @@ export default function Contact() {
                           onChange={set("name")}
                           required
                           placeholder="مثلاً: سارا احمدی"
-                          className="w-full h-11 px-4 rounded-xl bg-orange-50/60 border border-orange-100 text-sm text-foreground placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
+                          className="w-full h-11 px-4 rounded-xl bg-primary/10 border border-border text-sm text-foreground placeholder:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
                           dir="rtl"
                         />
                       </div>
@@ -118,7 +118,7 @@ export default function Contact() {
                           value={form.phone}
                           onChange={set("phone")}
                           placeholder="۰۹۱۲ ..."
-                          className="w-full h-11 px-4 rounded-xl bg-orange-50/60 border border-orange-100 text-sm text-foreground placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
+                          className="w-full h-11 px-4 rounded-xl bg-primary/10 border border-border text-sm text-foreground placeholder:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
                           dir="rtl"
                         />
                       </div>
@@ -131,7 +131,7 @@ export default function Contact() {
                         onChange={set("email")}
                         type="email"
                         placeholder="example@email.com"
-                        className="w-full h-11 px-4 rounded-xl bg-orange-50/60 border border-orange-100 text-sm text-foreground placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
+                        className="w-full h-11 px-4 rounded-xl bg-primary/10 border border-border text-sm text-foreground placeholder:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
                         dir="ltr"
                       />
                     </div>
@@ -141,7 +141,7 @@ export default function Contact() {
                       <select
                         value={form.subject}
                         onChange={set("subject")}
-                        className="w-full h-11 px-4 rounded-xl bg-orange-50/60 border border-orange-100 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all appearance-none"
+                        className="w-full h-11 px-4 rounded-xl bg-primary/10 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all appearance-none"
                         dir="rtl"
                       >
                         <option value="">موضوع را انتخاب کنید</option>
@@ -161,7 +161,7 @@ export default function Contact() {
                         required
                         rows={5}
                         placeholder="پیام خود را اینجا بنویسید..."
-                        className="w-full px-4 py-3 rounded-xl bg-orange-50/60 border border-orange-100 text-sm text-foreground placeholder:text-orange-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-xl bg-primary/10 border border-border text-sm text-foreground placeholder:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all resize-none"
                         dir="rtl"
                       />
                     </div>
@@ -189,21 +189,21 @@ export default function Contact() {
             <div className="lg:col-span-2 space-y-5">
 
               {/* Quick support */}
-              <div className="bg-gradient-to-br from-primary to-amber-500 rounded-3xl p-6 text-white">
+              <div className="bg-gradient-to-br from-primary to-teal-400 rounded-3xl p-6 text-white">
                 <HeadphonesIcon className="w-8 h-8 mb-3 opacity-90" />
                 <h3 className="text-lg font-bold mb-1">پشتیبانی فوری</h3>
                 <p className="text-sm opacity-80 mb-4">برای سوالات فوری می‌توانید مستقیم تماس بگیرید</p>
-                <a href="tel:02112345678" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 text-white text-sm font-bold hover:bg-white/30 transition-colors">
+                <a href="tel:02112345678" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card text-white text-sm font-bold hover:bg-card transition-colors">
                   <Phone className="w-4 h-4" />
                   ۰۲۱-۱۲۳۴۵۶۷۸
                 </a>
               </div>
 
               {/* Map placeholder */}
-              <div className="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden">
-                <div className="h-44 bg-gradient-to-br from-orange-50 to-blue-50 flex flex-col items-center justify-center relative">
+              <div className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">
+                <div className="h-44 bg-gradient-to-br from-primary/10 to-primary/5 flex flex-col items-center justify-center relative">
                   <div className="absolute inset-0 opacity-10" style={{
-                    backgroundImage: "repeating-linear-gradient(0deg, #f9a8d4 0px, #f9a8d4 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, #f9a8d4 0px, #f9a8d4 1px, transparent 1px, transparent 40px)"
+                    backgroundImage: "repeating-linear-gradient(0deg, rgba(45,212,191,0.18) 0px, rgba(45,212,191,0.18) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, rgba(45,212,191,0.18) 0px, rgba(45,212,191,0.18) 1px, transparent 1px, transparent 40px)"
                   }} />
                   <MapPin className="w-10 h-10 text-primary mb-2 drop-shadow-sm" />
                   <p className="text-sm font-semibold text-foreground">تهران، خیابان ولیعصر</p>
@@ -214,7 +214,7 @@ export default function Contact() {
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     تهران، خیابان ولیعصر، ساختمان بازارچه، طبقه دوم، واحد ۱۵
                   </p>
-                  <div className="mt-3 pt-3 border-t border-orange-50">
+                  <div className="mt-3 pt-3 border-t border-border">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                       <span>شنبه تا پنجشنبه — ۹:۰۰ تا ۱۸:۰۰</span>
@@ -224,13 +224,13 @@ export default function Contact() {
               </div>
 
               {/* Social */}
-              <div className="bg-white rounded-3xl border border-orange-100 shadow-sm p-5">
+              <div className="bg-card rounded-3xl border border-border shadow-sm p-5">
                 <h3 className="font-bold text-foreground mb-3 text-sm">ما را در شبکه‌های اجتماعی دنبال کنید</h3>
                 <div className="flex gap-3 flex-wrap">
                   {[
-                    { name: "اینستاگرام", emoji: "📸", color: "bg-orange-50 text-orange-600 hover:bg-orange-100" },
-                    { name: "تلگرام", emoji: "✈️", color: "bg-blue-50 text-blue-600 hover:bg-blue-100" },
-                    { name: "واتساپ", emoji: "💬", color: "bg-green-50 text-green-600 hover:bg-green-100" },
+                    { name: "اینستاگرام", emoji: "📸", color: "bg-primary/10 text-primary hover:bg-primary/10" },
+                    { name: "تلگرام", emoji: "✈️", color: "bg-sky-500/15 text-sky-300 hover:bg-sky-500/15" },
+                    { name: "واتساپ", emoji: "💬", color: "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/15" },
                   ].map(({ name, emoji, color }) => (
                     <button key={name} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${color}`}>
                       <span>{emoji}</span>
@@ -245,22 +245,22 @@ export default function Contact() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="py-14 px-4 bg-gradient-to-b from-orange-50/40 to-transparent">
+      <section className="py-14 px-4 bg-gradient-to-b from-primary/10 to-transparent">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4">
               سوالات متداول
             </div>
             <h2 className="text-3xl font-black text-foreground">پرتکرارترین سوالات</h2>
           </div>
           <div className="space-y-3">
             {FAQS.map(({ q, a }) => (
-              <details key={q} className="group bg-white rounded-2xl border border-orange-100 shadow-sm overflow-hidden">
+              <details key={q} className="group bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                 <summary className="flex items-center justify-between gap-4 px-6 py-4 cursor-pointer select-none list-none font-semibold text-foreground text-sm hover:text-primary transition-colors">
                   {q}
                   <ChevronLeft className="w-4 h-4 flex-shrink-0 text-muted-foreground group-open:-rotate-90 transition-transform duration-200" />
                 </summary>
-                <div className="px-6 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-orange-50 pt-3">
+                <div className="px-6 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">
                   {a}
                 </div>
               </details>

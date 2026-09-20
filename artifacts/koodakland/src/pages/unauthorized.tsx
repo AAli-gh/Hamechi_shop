@@ -9,11 +9,11 @@ export default function Unauthorized() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4" dir="rtl">
       <div className="text-center max-w-md">
-        <div className="w-20 h-20 rounded-3xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-6">
+        <div className="w-20 h-20 rounded-3xl bg-red-500/15 border border-red-500/30 flex items-center justify-center mx-auto mb-6">
           <ShieldX className="w-10 h-10 text-red-400" />
         </div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 mb-4">
-          <span className="text-xs font-bold text-red-500">خطا ۴۰۳</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/30 mb-4">
+          <span className="text-xs font-bold text-red-400">خطا ۴۰۳</span>
         </div>
         <h1 className="text-2xl font-black text-foreground mb-3">دسترسی ممنوع</h1>
         <p className="text-muted-foreground text-sm leading-relaxed mb-8">

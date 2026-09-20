@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { ArrowLeft, ChevronLeft, Wallet, LayoutGrid } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSEO } from "@/hooks/useSEO";
+import { TrustBadges } from "@/components/layout/TrustBadges";
 
 function Badge({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${className}`} {...props}>{children}</div>;
@@ -41,18 +42,18 @@ function ProductSkeletons({ count = 4 }: { count?: number }) {
 }
 
 const CATEGORY_COLORS = [
-  "from-amber-50 to-orange-100 border-orange-200",
-  "from-sky-50 to-blue-100 border-blue-200",
-  "from-emerald-50 to-green-100 border-green-200",
+  "from-amber-50 to-primary/5 border-border",
+  "from-primary/5 to-blue-100 border-blue-200",
+  "from-primary/5 to-green-100 border-emerald-500/30",
   "from-amber-50 to-yellow-100 border-yellow-200",
-  "from-violet-50 to-purple-100 border-purple-200",
-  "from-cyan-50 to-teal-100 border-teal-200",
+  "from-primary/5 to-purple-100 border-purple-200",
+  "from-cyan-50 to-primary/10 border-teal-200",
 ];
 
 const BUDGET_GROUPS = [
-  { label: "زیر ۵۰۰ هزار تومان", max: 500000, emoji: "💰", color: "from-green-50 to-emerald-100", border: "border-green-200" },
-  { label: "۵۰۰ هزار تا ۲ میلیون", min: 500000, max: 2000000, emoji: "🛍️", color: "from-sky-50 to-blue-100", border: "border-blue-200" },
-  { label: "۲ تا ۱۰ میلیون", min: 2000000, max: 10000000, emoji: "🎁", color: "from-violet-50 to-purple-100", border: "border-purple-200" },
+  { label: "زیر ۵۰۰ هزار تومان", max: 500000, emoji: "💰", color: "from-green-50 to-emerald-100", border: "border-emerald-500/30" },
+  { label: "۵۰۰ هزار تا ۲ میلیون", min: 500000, max: 2000000, emoji: "🛍️", color: "from-primary/5 to-blue-100", border: "border-blue-200" },
+  { label: "۲ تا ۱۰ میلیون", min: 2000000, max: 10000000, emoji: "🎁", color: "from-primary/5 to-purple-100", border: "border-purple-200" },
   { label: "بالای ۱۰ میلیون", min: 10000000, emoji: "💎", color: "from-amber-50 to-yellow-100", border: "border-yellow-200" },
 ];
 
@@ -109,6 +110,10 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="container mx-auto px-4 -mt-6">
+        <TrustBadges />
+      </section>
+
       {/* ── Featured Products ── */}
       <section className="container mx-auto px-4">
         <SectionHeader title="محصولات ویژه" href="/shop?featured=true" emoji="✨" />
@@ -151,7 +156,7 @@ export default function Home() {
       {/* ── Flash Sale ── */}
       {flashItems.length > 0 && (
         <section className="container mx-auto px-4">
-          <div className="bg-gradient-to-l from-orange-50 to-red-50 border border-orange-100 rounded-3xl p-6 sm:p-8">
+          <div className="bg-gradient-to-l from-primary/10 to-red-50 border border-border rounded-3xl p-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white font-black text-xs">٪</div>
@@ -161,7 +166,7 @@ export default function Home() {
                 </div>
               </div>
               <Link href="/shop?flashSale=true">
-                <Button variant="outline" size="sm" className="rounded-xl border-orange-200 hover:bg-orange-50 font-medium text-xs">
+                <Button variant="outline" size="sm" className="rounded-xl border-border hover:bg-primary/10 font-medium text-xs">
                   همه تخفیف‌ها <ArrowLeft className="w-3.5 h-3.5 mr-1" />
                 </Button>
               </Link>

@@ -7,9 +7,9 @@ import { Plus, Trash2, Tag, Percent, DollarSign, Clock, Users, ShoppingBag, Zap,
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const DISCOUNT_TYPES = [
-  { value: "percent", label: "درصدی", icon: Percent, color: "bg-blue-100 text-blue-700", desc: "مثلاً ۲۰٪ تخفیف" },
-  { value: "fixed", label: "مبلغ ثابت", icon: DollarSign, color: "bg-green-100 text-green-700", desc: "مثلاً ۵۰,۰۰۰ تومان" },
-  { value: "first_purchase", label: "اولین خرید", icon: Zap, color: "bg-purple-100 text-purple-700", desc: "فقط برای مشتری جدید" },
+  { value: "percent", label: "درصدی", icon: Percent, color: "bg-sky-500/15 text-sky-300", desc: "مثلاً ۲۰٪ تخفیف" },
+  { value: "fixed", label: "مبلغ ثابت", icon: DollarSign, color: "bg-emerald-500/15 text-emerald-400", desc: "مثلاً ۵۰,۰۰۰ تومان" },
+  { value: "first_purchase", label: "اولین خرید", icon: Zap, color: "bg-violet-500/15 text-violet-300", desc: "فقط برای مشتری جدید" },
 ];
 
 const CAMPAIGN_TEMPLATES = [
@@ -28,9 +28,9 @@ function StatusBadge({ d }: { d: { isActive: boolean; expiresAt: string | null; 
   const expired = d.expiresAt && new Date(d.expiresAt) < new Date();
   const full = d.maxUses && d.usedCount >= d.maxUses;
   if (!d.isActive) return <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground font-semibold">غیرفعال</span>;
-  if (expired) return <span className="text-xs px-2.5 py-1 rounded-full bg-red-100 text-red-600 font-semibold">منقضی</span>;
-  if (full) return <span className="text-xs px-2.5 py-1 rounded-full bg-orange-100 text-orange-600 font-semibold">تمام‌شده</span>;
-  return <span className="text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-600 font-semibold">فعال ✓</span>;
+  if (expired) return <span className="text-xs px-2.5 py-1 rounded-full bg-red-500/15 text-red-400 font-semibold">منقضی</span>;
+  if (full) return <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-semibold">تمام‌شده</span>;
+  return <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 font-semibold">فعال ✓</span>;
 }
 
 export default function AdminDiscounts() {
@@ -98,10 +98,10 @@ export default function AdminDiscounts() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "کل کدها", value: (discounts || []).length, icon: Tag, color: "bg-blue-100 text-blue-600" },
-          { label: "فعال", value: activeCount, icon: CheckCircle, color: "bg-green-100 text-green-600" },
-          { label: "کل استفاده", value: totalUsage, icon: Users, color: "bg-purple-100 text-purple-600" },
-          { label: "درآمد از تخفیف", value: "—", icon: ShoppingBag, color: "bg-orange-100 text-orange-600" },
+          { label: "کل کدها", value: (discounts || []).length, icon: Tag, color: "bg-sky-500/15 text-sky-300" },
+          { label: "فعال", value: activeCount, icon: CheckCircle, color: "bg-emerald-500/15 text-emerald-400" },
+          { label: "کل استفاده", value: totalUsage, icon: Users, color: "bg-violet-500/15 text-violet-300" },
+          { label: "درآمد از تخفیف", value: "—", icon: ShoppingBag, color: "bg-primary/10 text-primary" },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-card rounded-2xl p-4 border border-border/50 flex items-center gap-3">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}><Icon className="w-4 h-4" /></div>
@@ -114,7 +114,7 @@ export default function AdminDiscounts() {
       <div className="flex gap-1 p-1 bg-muted/50 rounded-xl w-fit">
         {[["list", "کدهای موجود"], ["campaigns", "قالب‌های کمپین"]].map(([id, label]) => (
           <button key={id} onClick={() => setTab(id as typeof tab)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === id ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === id ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
             {label}
           </button>
         ))}
@@ -138,7 +138,7 @@ export default function AdminDiscounts() {
                       <button onClick={() => copyCode(d.code)} className="flex items-center gap-1.5 group">
                         <span className="font-black text-lg font-mono text-foreground group-hover:text-primary transition-colors">{d.code}</span>
                         {copiedCode === d.code
-                          ? <CheckCircle className="w-4 h-4 text-green-500" />
+                          ? <CheckCircle className="w-4 h-4 text-emerald-400" />
                           : <Copy className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                         }
                       </button>
@@ -162,7 +162,7 @@ export default function AdminDiscounts() {
                           <span>استفاده‌شده</span><span>{usagePct}٪</span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full transition-all ${usagePct >= 90 ? "bg-red-500" : usagePct >= 60 ? "bg-orange-500" : "bg-primary"}`} style={{ width: `${usagePct}%` }} />
+                          <div className={`h-full rounded-full transition-all ${usagePct >= 90 ? "bg-red-500" : usagePct >= 60 ? "bg-primary" : "bg-primary"}`} style={{ width: `${usagePct}%` }} />
                         </div>
                       </div>
                     )}

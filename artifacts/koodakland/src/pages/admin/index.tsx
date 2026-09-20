@@ -15,10 +15,10 @@ export default function AdminDashboard() {
   const { data: salesChart } = useGetSalesChart();
 
   const statCards = stats ? [
-    { label: "درآمد کل", value: `${(stats.totalRevenue / 1000000).toFixed(1)} م.ت`, icon: TrendingUp, growth: stats.revenueGrowth, color: "text-green-600 bg-green-100 dark:bg-green-900/30" },
-    { label: "کل سفارشات", value: stats.totalOrders.toLocaleString("fa-IR"), icon: ShoppingBag, growth: stats.ordersGrowth, color: "text-blue-600 bg-blue-100 dark:bg-blue-900/30" },
-    { label: "محصولات", value: stats.totalProducts.toLocaleString("fa-IR"), icon: Package, growth: null, color: "text-purple-600 bg-purple-100 dark:bg-purple-900/30" },
-    { label: "کاربران", value: stats.totalUsers.toLocaleString("fa-IR"), icon: Users, growth: null, color: "text-amber-600 bg-amber-100 dark:bg-amber-900/30" },
+    { label: "درآمد کل", value: `${(stats.totalRevenue / 1000000).toFixed(1)} م.ت`, icon: TrendingUp, growth: stats.revenueGrowth, color: "text-emerald-400 bg-emerald-500/15 dark:bg-green-900/30" },
+    { label: "کل سفارشات", value: stats.totalOrders.toLocaleString("fa-IR"), icon: ShoppingBag, growth: stats.ordersGrowth, color: "text-sky-300 bg-sky-500/15 dark:bg-blue-900/30" },
+    { label: "محصولات", value: stats.totalProducts.toLocaleString("fa-IR"), icon: Package, growth: null, color: "text-violet-300 bg-violet-500/15 dark:bg-purple-900/30" },
+    { label: "کاربران", value: stats.totalUsers.toLocaleString("fa-IR"), icon: Users, growth: null, color: "text-amber-300 bg-amber-500/10 dark:bg-amber-900/30" },
   ] : [];
 
   return (
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
                 <p className="text-sm text-muted-foreground">{card.label}</p>
               </div>
               {card.growth !== null && card.growth !== undefined && (
-                <div className={`flex items-center gap-1 text-xs font-medium ${card.growth >= 0 ? "text-green-600" : "text-destructive"}`}>
+                <div className={`flex items-center gap-1 text-xs font-medium ${card.growth >= 0 ? "text-emerald-400" : "text-destructive"}`}>
                   {card.growth >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                   {Math.abs(card.growth).toFixed(1)}٪ نسبت به ماه گذشته
                 </div>
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{p.nameFa}</p>
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-100 text-red-600 dark:bg-red-900/30" : "bg-orange-100 text-orange-600 dark:bg-orange-900/30"}`}>
+                <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-500/15 text-red-400 dark:bg-red-900/30" : "bg-primary/10 text-primary dark:bg-orange-900/30"}`}>
                   {p.stock.toLocaleString("fa-IR")} عدد
                 </span>
               </div>

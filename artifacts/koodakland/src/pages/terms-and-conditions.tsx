@@ -5,7 +5,7 @@ import { useSEO } from "@/hooks/useSEO";
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-8">
-      <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-orange-100">{title}</h2>
+      <h2 className="text-lg font-black text-foreground mb-3 pb-2 border-b border-border">{title}</h2>
       <div className="text-sm text-muted-foreground leading-loose space-y-2">{children}</div>
     </section>
   );
@@ -14,8 +14,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function TermsAndConditions() {
   useSEO({ title: "شرایط و قوانین استفاده", description: "شرایط و قوانین استفاده از خدمات فروشگاه آنلاین بازارچه." });
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/40 to-white" dir="rtl">
-      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-orange-100">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-card" dir="rtl">
+      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-border">
         <div className="container mx-auto max-w-4xl px-4 py-10">
           <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-5">
             <Link href="/" className="hover:text-primary transition-colors">خانه</Link>
@@ -34,7 +34,7 @@ export default function TermsAndConditions() {
         </div>
       </div>
       <div className="container mx-auto max-w-4xl px-4 py-10">
-        <div className="bg-white rounded-3xl border border-orange-100 shadow-sm p-6 sm:p-10">
+        <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-10">
           <Section title="۱. پذیرش شرایط">
             <p>با ثبت‌نام یا استفاده از خدمات بازارچه، کاربر این شرایط را به طور کامل می‌پذیرد. در صورت عدم پذیرش، لطفاً از استفاده از سایت خودداری کنید.</p>
           </Section>

@@ -111,14 +111,14 @@ export default function Cart() {
                 <input value={discountCode} onChange={(e) => setDiscountCode(e.target.value)} placeholder="کد تخفیف" className="flex-1 h-10 rounded-xl bg-muted border-none px-4 text-sm focus:outline-none" />
                 <Button size="sm" variant="outline" className="rounded-xl shrink-0" onClick={handleApplyDiscount} disabled={validateDiscount.isPending}>اعمال</Button>
               </div>
-              {appliedDiscount && <p className="text-green-600 text-xs mt-2 font-semibold">کد تخفیف {appliedDiscount.code} اعمال شد</p>}
+              {appliedDiscount && <p className="text-emerald-400 text-xs mt-2 font-semibold">کد تخفیف {appliedDiscount.code} اعمال شد</p>}
             </div>
 
             <div className="bg-card rounded-2xl p-5 border border-border/50 flex flex-col gap-3">
               <h3 className="font-bold">خلاصه سفارش</h3>
               <Separator />
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">جمع کالاها</span><span className="font-medium">{subtotal.toLocaleString("fa-IR")} تومان</span></div>
-              {discountAmount > 0 && <div className="flex justify-between text-sm"><span className="text-muted-foreground">تخفیف</span><span className="font-medium text-green-600">-{discountAmount.toLocaleString("fa-IR")} تومان</span></div>}
+              {discountAmount > 0 && <div className="flex justify-between text-sm"><span className="text-muted-foreground">تخفیف</span><span className="font-medium text-emerald-400">-{discountAmount.toLocaleString("fa-IR")} تومان</span></div>}
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">هزینه ارسال</span><span className="font-medium text-muted-foreground">در مرحله بعد</span></div>
               <Separator />
               <div className="flex justify-between font-black text-base"><span>مبلغ قابل پرداخت</span><span className="text-primary">{total.toLocaleString("fa-IR")} تومان</span></div>

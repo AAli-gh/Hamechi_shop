@@ -16,6 +16,7 @@ import { useCompare, MAX_COMPARE } from "@/lib/compare";
 import { StockNotifyForm } from "@/components/product/StockNotifyForm";
 import { VariantPicker, useVariantSelection } from "@/components/product/VariantPicker";
 import { useSEO } from "@/hooks/useSEO";
+import { TrustBadges } from "@/components/layout/TrustBadges";
 
 export default function ProductPage() {
   const [, params] = useRoute("/product/:slug");
@@ -194,7 +195,7 @@ export default function ProductPage() {
               <Button
                 variant="outline"
                 size="icon"
-                className={`shrink-0 rounded-full ${wishlist.isSaved(product.id) ? "text-red-500 border-red-200" : "text-muted-foreground"}`}
+                className={`shrink-0 rounded-full ${wishlist.isSaved(product.id) ? "text-red-400 border-red-500/30" : "text-muted-foreground"}`}
                 aria-label={wishlist.isSaved(product.id) ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
                 aria-pressed={wishlist.isSaved(product.id)}
                 disabled={wishlist.isPending}
@@ -208,7 +209,7 @@ export default function ProductPage() {
             <div className="flex items-center gap-2">
               <div className="flex text-amber-400">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-4 h-4 ${i < Math.round(product.avgRating || 0) ? "fill-current" : "text-slate-200"}`} />
+                  <Star key={i} className={`w-4 h-4 ${i < Math.round(product.avgRating || 0) ? "fill-current" : "text-muted-foreground/40"}`} />
                 ))}
               </div>
               <span className="text-sm text-muted-foreground">({(product.reviewCount || 0).toLocaleString("fa-IR")} نظر)</span>
@@ -230,7 +231,7 @@ export default function ProductPage() {
 
             {hasVariants && <VariantPicker picker={picker} />}
 
-            <div className={`inline-flex items-center gap-2 text-sm font-semibold ${availableStock > 0 ? "text-green-600" : "text-destructive"}`}>
+            <div className={`inline-flex items-center gap-2 text-sm font-semibold ${availableStock > 0 ? "text-emerald-400" : "text-destructive"}`}>
               <Package className="w-4 h-4" />
               {availableStock > 0 ? `${availableStock.toLocaleString("fa-IR")} عدد در انبار` : hasVariants && product.stock > 0 ? "این گزینه ناموجود است" : "ناموجود"}
             </div>
@@ -259,14 +260,7 @@ export default function ProductPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-3 mt-2">
-              {[{ icon: Truck, text: "ارسال سریع" }, { icon: Shield, text: "ضمانت اصالت" }, { icon: Package, text: "بسته‌بندی ایمن" }].map((item) => (
-                <div key={item.text} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-muted/50 text-center">
-                  <item.icon className="w-5 h-5 text-primary" />
-                  <span className="text-xs font-medium text-foreground">{item.text}</span>
-                </div>
-              ))}
-            </div>
+            <TrustBadges className="mt-2 lg:grid-cols-2" />
 
             {product.descriptionFa && (
               <div className="mt-2">
@@ -306,7 +300,7 @@ export default function ProductPage() {
                         {review.isVerified && <Badge variant="secondary" className="text-xs rounded-full">خرید تایید شده</Badge>}
                       </div>
                     </div>
-                    <div className="flex text-amber-400">{[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-slate-200"}`} />)}</div>
+                    <div className="flex text-amber-400">{[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-muted-foreground/40"}`} />)}</div>
                   </div>
                   {review.comment && <p className="text-muted-foreground text-sm mt-2">{review.comment}</p>}
                 </div>
@@ -328,7 +322,7 @@ export default function ProductPage() {
               <div className="flex gap-2">
                 {[1,2,3,4,5].map((r) => (
                   <button key={r} onClick={() => setReviewRating(r)}>
-                    <Star className={`w-6 h-6 ${r <= reviewRating ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+                    <Star className={`w-6 h-6 ${r <= reviewRating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`} />
                   </button>
                 ))}
               </div>

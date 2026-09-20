@@ -38,11 +38,11 @@ export function StockNotifyForm({ productId }: StockNotifyFormProps) {
 
   if (status === "success") {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-2xl bg-green-50 border border-green-100">
-        <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+      <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30">
+        <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
         <div>
-          <p className="font-bold text-green-700 text-sm">ثبت شد!</p>
-          <p className="text-xs text-green-600 mt-0.5">{message}</p>
+          <p className="font-bold text-emerald-400 text-sm">ثبت شد!</p>
+          <p className="text-xs text-emerald-400 mt-0.5">{message}</p>
         </div>
       </div>
     );

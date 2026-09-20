@@ -65,7 +65,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/product/${product.slug}`} className="group block">
-      <Card className="overflow-hidden border-none shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-white/80 backdrop-blur-sm dark:bg-card/80">
+      <Card className="overflow-hidden border-none shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-card backdrop-blur-sm bg-card">
         <div className="relative aspect-square overflow-hidden bg-muted/50 rounded-t-2xl">
           {product.images && product.images.length > 0 ? (
             <img
@@ -89,7 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </Badge>
             )}
             {product.isFlashSale && (
-              <Badge className="bg-orange-500 hover:bg-orange-600 font-bold px-2 py-1 rounded-full shadow-sm text-xs text-white border-none">
+              <Badge className="bg-primary hover:bg-primary font-bold px-2 py-1 rounded-full shadow-sm text-xs text-white border-none">
                 حراج زمان‌دار
               </Badge>
             )}
@@ -99,7 +99,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <Button
               variant="secondary"
               size="icon"
-              className={`w-8 h-8 rounded-full shadow-sm bg-white/90 hover:bg-red-50 hover:text-red-500 ${saved ? "text-red-500" : "text-slate-400"}`}
+              className={`w-8 h-8 rounded-full shadow-sm bg-card hover:bg-red-500/15 hover:text-red-400 ${saved ? "text-red-400" : "text-muted-foreground/40"}`}
               aria-label={saved ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
               aria-pressed={saved}
               disabled={wishlist.isPending}
@@ -123,7 +123,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center gap-1 mb-3">
             <div className="flex text-amber-400">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(product.avgRating || 0) ? 'fill-current' : 'text-slate-200 dark:text-slate-700'}`} />
+                <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(product.avgRating || 0) ? 'fill-current' : 'text-muted-foreground/40 text-muted-foreground/40'}`} />
               ))}
             </div>
             <span className="text-xs text-muted-foreground mt-0.5">({product.reviewCount})</span>

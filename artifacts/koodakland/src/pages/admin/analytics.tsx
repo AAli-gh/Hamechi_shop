@@ -32,10 +32,10 @@ export default function AdminAnalytics() {
   }, [salesChart]);
 
   const statCards = stats ? [
-    { label: "درآمد کل", value: `${(stats.totalRevenue / 1_000_000).toFixed(1)} م.ت`, icon: DollarSign, growth: stats.revenueGrowth, color: "text-emerald-600 bg-emerald-100" },
-    { label: "کل سفارشات", value: stats.totalOrders.toLocaleString("fa-IR"), icon: ShoppingBag, growth: stats.ordersGrowth, color: "text-blue-600 bg-blue-100" },
-    { label: "محصولات", value: stats.totalProducts.toLocaleString("fa-IR"), icon: Package, growth: null, color: "text-purple-600 bg-purple-100" },
-    { label: "کاربران", value: stats.totalUsers.toLocaleString("fa-IR"), icon: Users, growth: null, color: "text-amber-600 bg-amber-100" },
+    { label: "درآمد کل", value: `${(stats.totalRevenue / 1_000_000).toFixed(1)} م.ت`, icon: DollarSign, growth: stats.revenueGrowth, color: "text-emerald-400 bg-emerald-500/15" },
+    { label: "کل سفارشات", value: stats.totalOrders.toLocaleString("fa-IR"), icon: ShoppingBag, growth: stats.ordersGrowth, color: "text-sky-300 bg-sky-500/15" },
+    { label: "محصولات", value: stats.totalProducts.toLocaleString("fa-IR"), icon: Package, growth: null, color: "text-violet-300 bg-violet-500/15" },
+    { label: "کاربران", value: stats.totalUsers.toLocaleString("fa-IR"), icon: Users, growth: null, color: "text-amber-300 bg-amber-500/10" },
   ] : [];
 
   return (
@@ -65,7 +65,7 @@ export default function AdminAnalytics() {
               <p className="text-2xl font-black text-foreground">{card.value}</p>
               <p className="text-sm text-muted-foreground">{card.label}</p>
               {card.growth !== null && card.growth !== undefined && (
-                <div className={`flex items-center gap-1 text-xs font-medium mt-2 ${card.growth >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                <div className={`flex items-center gap-1 text-xs font-medium mt-2 ${card.growth >= 0 ? "text-emerald-400" : "text-destructive"}`}>
                   {card.growth >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                   {Math.abs(card.growth).toFixed(1)}٪ نسبت به ماه گذشته
                 </div>
@@ -79,7 +79,7 @@ export default function AdminAnalytics() {
         <div className="bg-card rounded-2xl p-6 border border-border/50">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-bold">درآمد ۳۰ روز اخیر</h2>
-            <div className="text-xs text-muted-foreground bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full">
+            <div className="text-xs text-muted-foreground bg-emerald-500/15 text-emerald-400 px-2 py-1 rounded-full">
               {salesChart.reduce((a, b) => a + b.revenue, 0).toLocaleString("fa-IR")} تومان کل
             </div>
           </div>
@@ -148,8 +148,8 @@ export default function AdminAnalytics() {
       {stats && (
         <div className="grid sm:grid-cols-3 gap-4">
           {[
-            { label: "میانگین ارزش سفارش", value: stats.totalOrders > 0 ? `${Math.round(stats.totalRevenue / stats.totalOrders).toLocaleString("fa-IR")} ت` : "—", icon: Target, color: "text-blue-600" },
-            { label: "نرخ تبدیل", value: "۳.۲٪", icon: TrendingUp, color: "text-emerald-600" },
+            { label: "میانگین ارزش سفارش", value: stats.totalOrders > 0 ? `${Math.round(stats.totalRevenue / stats.totalOrders).toLocaleString("fa-IR")} ت` : "—", icon: Target, color: "text-sky-300" },
+            { label: "نرخ تبدیل", value: "۳.۲٪", icon: TrendingUp, color: "text-emerald-400" },
             { label: "رتبه رضایت", value: "۴.۸ ⭐", icon: Star, color: "text-yellow-500" },
           ].map(({ label, value, icon: Icon, color }) => (
             <div key={label} className="bg-card rounded-2xl p-5 border border-border/50 flex items-center gap-4">
@@ -180,10 +180,10 @@ export default function AdminAnalytics() {
                 <div className="text-left">
                   <p className="text-sm font-bold text-primary">{o.total.toLocaleString("fa-IR")}</p>
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    o.status === "delivered" ? "bg-green-100 text-green-700" :
-                    o.status === "shipped" ? "bg-blue-100 text-blue-700" :
-                    o.status === "cancelled" ? "bg-red-100 text-red-700" :
-                    "bg-orange-100 text-orange-700"
+                    o.status === "delivered" ? "bg-emerald-500/15 text-emerald-400" :
+                    o.status === "shipped" ? "bg-sky-500/15 text-sky-300" :
+                    o.status === "cancelled" ? "bg-red-500/15 text-red-400" :
+                    "bg-primary/10 text-primary"
                   }`}>{ORDER_STATUS_FA[o.status] || o.status}</span>
                 </div>
               </div>
@@ -204,7 +204,7 @@ export default function AdminAnalytics() {
                   {p.images[0] && <img src={p.images[0]} alt={p.nameFa} className="w-full h-full object-cover" />}
                 </div>
                 <p className="text-sm font-medium flex-1 truncate">{p.nameFa}</p>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-100 text-red-600" : "bg-orange-100 text-orange-600"}`}>
+                <span className={`text-xs font-bold px-2 py-1 rounded-full ${p.stock === 0 ? "bg-red-500/15 text-red-400" : "bg-primary/10 text-primary"}`}>
                   {p.stock.toLocaleString("fa-IR")} عدد
                 </span>
               </div>

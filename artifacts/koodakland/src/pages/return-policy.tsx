@@ -6,8 +6,8 @@ export default function ReturnPolicy() {
   useSEO({ title: "سیاست مرجوعی و بازگشت کالا", description: "شرایط و مراحل مرجوعی و بازگشت کالا در فروشگاه بازارچه. ضمانت ۱۴ روزه بازگشت." });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/40 to-white" dir="rtl">
-      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-orange-100">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-card" dir="rtl">
+      <div className="bg-gradient-to-l from-primary/10 to-amber-50 border-b border-border">
         <div className="container mx-auto max-w-4xl px-4 py-10">
           <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-5">
             <Link href="/" className="hover:text-primary transition-colors">خانه</Link>
@@ -28,21 +28,21 @@ export default function ReturnPolicy() {
 
       <div className="container mx-auto max-w-4xl px-4 py-10 flex flex-col gap-6">
         {/* Guarantee banner */}
-        <div className="bg-gradient-to-l from-green-50 to-emerald-50 border border-green-100 rounded-3xl p-6 flex items-center gap-4">
+        <div className="bg-gradient-to-l from-green-50 to-primary/5 border border-emerald-500/30 rounded-3xl p-6 flex items-center gap-4">
           <div className="text-4xl">✅</div>
           <div>
-            <h2 className="font-black text-green-800 text-lg">ضمانت ۱۴ روزه بازگشت</h2>
-            <p className="text-sm text-green-700 mt-1">اگر به هر دلیلی از خرید راضی نبودید، تا ۱۴ روز می‌توانید کالا را برگردانید.</p>
+            <h2 className="font-black text-emerald-400 text-lg">ضمانت ۱۴ روزه بازگشت</h2>
+            <p className="text-sm text-emerald-400 mt-1">اگر به هر دلیلی از خرید راضی نبودید، تا ۱۴ روز می‌توانید کالا را برگردانید.</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-orange-100 shadow-sm p-6 sm:p-10 flex flex-col gap-8">
+        <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-10 flex flex-col gap-8">
           <section>
-            <h2 className="text-lg font-black mb-4 pb-2 border-b border-orange-100">شرایط پذیرش مرجوعی</h2>
+            <h2 className="text-lg font-black mb-4 pb-2 border-b border-border">شرایط پذیرش مرجوعی</h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-4 bg-green-50 rounded-2xl border border-green-100">
-                <p className="font-bold text-green-800 mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4" />قابل برگشت</p>
-                <ul className="text-sm text-green-700 space-y-1">
+              <div className="p-4 bg-emerald-500/15 rounded-2xl border border-emerald-500/30">
+                <p className="font-bold text-emerald-400 mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4" />قابل برگشت</p>
+                <ul className="text-sm text-emerald-400 space-y-1">
                   <li>• محصول در بسته‌بندی اصلی</li>
                   <li>• بدون آسیب یا استفاده</li>
                   <li>• با تمام اقلام همراه</li>
@@ -50,9 +50,9 @@ export default function ReturnPolicy() {
                   <li>• با کد سفارش معتبر</li>
                 </ul>
               </div>
-              <div className="p-4 bg-red-50 rounded-2xl border border-red-100">
-                <p className="font-bold text-red-800 mb-3 flex items-center gap-2"><XCircle className="w-4 h-4" />غیرقابل برگشت</p>
-                <ul className="text-sm text-red-700 space-y-1">
+              <div className="p-4 bg-red-500/15 rounded-2xl border border-red-500/30">
+                <p className="font-bold text-red-400 mb-3 flex items-center gap-2"><XCircle className="w-4 h-4" />غیرقابل برگشت</p>
+                <ul className="text-sm text-red-400 space-y-1">
                   <li>• محصولات بهداشتی باز‌شده</li>
                   <li>• لباس‌های شسته‌شده</li>
                   <li>• محصولات آسیب‌دیده توسط مشتری</li>
@@ -63,7 +63,7 @@ export default function ReturnPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-black mb-4 pb-2 border-b border-orange-100">مراحل بازگشت کالا</h2>
+            <h2 className="text-lg font-black mb-4 pb-2 border-b border-border">مراحل بازگشت کالا</h2>
             <div className="flex flex-col gap-4">
               {[
                 { step: "۱", title: "تماس با پشتیبانی", desc: "از طریق صفحه تماس یا شماره تلفن درخواست مرجوعی ثبت کنید." },
@@ -71,7 +71,7 @@ export default function ReturnPolicy() {
                 { step: "۳", title: "ارسال محصول", desc: "کالا را در بسته‌بندی مناسب با کد مرجوعی ارسال کنید." },
                 { step: "۴", title: "بازپرداخت", desc: "پس از دریافت و بررسی، مبلغ تا ۵ روز کاری به حساب شما واریز می‌شود." },
               ].map(({ step, title, desc }) => (
-                <div key={step} className="flex items-start gap-4 p-4 rounded-2xl bg-orange-50/50 border border-orange-100">
+                <div key={step} className="flex items-start gap-4 p-4 rounded-2xl bg-primary/10 border border-border">
                   <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-black text-sm flex-shrink-0">{step}</div>
                   <div>
                     <p className="font-bold text-foreground">{title}</p>
@@ -83,7 +83,7 @@ export default function ReturnPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-black mb-3 pb-2 border-b border-orange-100">هزینه ارسال مرجوعی</h2>
+            <h2 className="text-lg font-black mb-3 pb-2 border-b border-border">هزینه ارسال مرجوعی</h2>
             <div className="text-sm text-muted-foreground leading-loose space-y-2">
               <p>• اگر مرجوعی به دلیل <strong>نقص محصول</strong> یا <strong>ارسال اشتباه</strong> باشد: هزینه ارسال برعهده بازارچه</p>
               <p>• اگر مرجوعی به دلیل <strong>تغییر نظر مشتری</strong> باشد: هزینه ارسال برعهده مشتری</p>
