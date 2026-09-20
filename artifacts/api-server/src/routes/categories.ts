@@ -1,42 +1,51 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
-import { db, categoriesTable, productsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
+import { db, categoriesTable } from "@workspace/db";
 import { requireAuth, requireAdmin } from "../middleware/auth";
-import { CreateCategoryBody, UpdateCategoryBody, UpdateCategoryParams, DeleteCategoryParams } from "@workspace/api-zod";
+import { CreateCategoryBody, UpdateCategoryBody } from "@workspace/api-zod";
+import { categoryUsage, categoryWithCount, isValidParent, listCategoriesWithCounts } from "../lib/categories";
 
 const router: IRouter = Router();
 
-async function enrichCategory(cat: typeof categoriesTable.$inferSelect) {
-  const [{ count }] = await db.select({ count: sql<number>`count(*)` }).from(productsTable).where(eq(productsTable.categoryId, cat.id));
-  return { ...cat, productCount: Number(count) };
-}
-
 router.get("/categories", async (_req, res): Promise<void> => {
-  const cats = await db.select().from(categoriesTable);
-  const enriched = await Promise.all(cats.map(enrichCategory));
-  res.json(enriched);
+  res.json(await listCategoriesWithCounts());
 });
 
 router.post("/categories", requireAuth, requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateCategoryBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+  if (!(await isValidParent(null, parsed.data.parentId))) {
+    res.status(400).json({ error: "دسته‌بندی والد نامعتبر است" }); return;
+  }
   const [cat] = await db.insert(categoriesTable).values(parsed.data).returning();
-  res.status(201).json(await enrichCategory(cat));
+  res.status(201).json(await categoryWithCount(cat));
 });
 
 router.patch("/categories/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(raw, 10);
+  const id = parseInt(String(req.params.id), 10);
   const parsed = UpdateCategoryBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+  // Guards against loops: a category may not sit under itself or its own descendant.
+  if ("parentId" in parsed.data && !(await isValidParent(id, parsed.data.parentId))) {
+    res.status(400).json({ error: "دسته‌بندی والد نامعتبر است" }); return;
+  }
   const [cat] = await db.update(categoriesTable).set(parsed.data).where(eq(categoriesTable.id, id)).returning();
   if (!cat) { res.status(404).json({ error: "Category not found" }); return; }
-  res.json(await enrichCategory(cat));
+  res.json(await categoryWithCount(cat));
 });
 
 router.delete("/categories/:id", requireAuth, requireAdmin, async (req, res): Promise<void> => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(raw, 10);
+  const id = parseInt(String(req.params.id), 10);
+  const { children, products } = await categoryUsage(id);
+  if (children > 0 || products > 0) {
+    // Deleting would orphan products or sub-categories, which would hide them from the shop.
+    res.status(409).json({
+      error: children > 0
+        ? "ابتدا زیردسته‌های این دسته‌بندی را حذف یا جابه‌جا کنید"
+        : "این دسته‌بندی محصول دارد؛ ابتدا محصولات را به دسته‌بندی دیگری منتقل کنید",
+    });
+    return;
+  }
   await db.delete(categoriesTable).where(eq(categoriesTable.id, id));
   res.sendStatus(204);
 });

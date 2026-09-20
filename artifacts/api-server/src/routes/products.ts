@@ -1,9 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, sql, desc, asc, inArray } from "drizzle-orm";
-import { db, productsTable, productVariantsTable, cartItemsTable, categoriesTable } from "@workspace/db";
+import { db, productsTable, productVariantsTable, cartItemsTable } from "@workspace/db";
 import { enrichProduct, enrichProducts, syncProductStock } from "../lib/products";
 import { productSearchCondition } from "../lib/search";
 import { onStockChanged } from "../lib/notifications";
+import { categoryFilterIds } from "../lib/categories";
 import {
   ListProductsQueryParams,
   SetProductVariantsBody,
@@ -32,8 +33,9 @@ router.get("/products", async (req, res): Promise<void> => {
   const searchMatch = q ? productSearchCondition(q) : undefined;
   if (searchMatch) conditions.push(searchMatch);
   if (category) {
-    const [cat] = await db.select({ id: categoriesTable.id }).from(categoriesTable).where(eq(categoriesTable.slug, category));
-    if (cat) conditions.push(eq(productsTable.categoryId, cat.id));
+    // Opening a parent category shows everything in its sub-categories too.
+    const ids = await categoryFilterIds(category);
+    conditions.push(ids ? inArray(productsTable.categoryId, ids) : sql`false`);
   }
   if (minPrice !== undefined) conditions.push(gte(productsTable.price, String(minPrice)));
   if (maxPrice !== undefined) conditions.push(lte(productsTable.price, String(maxPrice)));

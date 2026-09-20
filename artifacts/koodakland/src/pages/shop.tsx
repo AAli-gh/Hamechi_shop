@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useListProducts, useListCategories } from "@workspace/api-client-react";
 import { useSEO } from "@/hooks/useSEO";
+import { flattenTree } from "@/lib/categories";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -78,14 +79,14 @@ export default function Shop() {
           >
             همه محصولات
           </button>
-          {categories.map((cat) => (
+          {flattenTree(categories).map((cat) => (
             <button
               key={cat.id}
               onClick={() => { setSelectedCategory(cat.slug); setPage(1); }}
-              className={`text-right px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${selectedCategory === cat.slug ? "bg-primary text-primary-foreground font-semibold" : "hover:bg-muted text-foreground"}`}
+              className={`text-right px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${cat.depth > 0 ? "mr-3 text-[13px]" : ""} ${selectedCategory === cat.slug ? "bg-primary text-primary-foreground font-semibold" : "hover:bg-muted text-foreground"}`}
             >
               <span>{cat.nameFa}</span>
-              <span className="text-xs opacity-60">({cat.productCount})</span>
+              <span className="text-xs opacity-60">({cat.productCount.toLocaleString("fa-IR")})</span>
             </button>
           ))}
         </div>

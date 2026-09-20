@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { categoryTree } from "@/lib/categories";
 import { DesktopSearch, MobileSearchModal } from "./LiveSearch";
 
 export function Header() {
@@ -116,16 +117,27 @@ export function Header() {
                     <>
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2 mb-2">دسته‌بندی‌ها</p>
                       <nav className="flex flex-col gap-1">
-                        {categories.map((cat) => (
-                          <Link
-                            key={cat.id}
-                            href={`/shop?category=${cat.slug}`}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="px-4 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-orange-50 hover:text-foreground transition-colors flex items-center gap-2"
-                          >
-                            <span className="text-base">{cat.icon}</span>
-                            {cat.nameFa}
-                          </Link>
+                        {categoryTree(categories).map((cat) => (
+                          <div key={cat.id}>
+                            <Link
+                              href={`/shop?category=${cat.slug}`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="px-4 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-orange-50 hover:text-foreground transition-colors flex items-center gap-2"
+                            >
+                              <span className="text-base">{cat.icon}</span>
+                              {cat.nameFa}
+                            </Link>
+                            {cat.children.map((child) => (
+                              <Link
+                                key={child.id}
+                                href={`/shop?category=${child.slug}`}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="pr-11 pl-4 py-2 rounded-xl text-sm text-muted-foreground hover:bg-orange-50 hover:text-foreground transition-colors block"
+                              >
+                                {child.nameFa}
+                              </Link>
+                            ))}
+                          </div>
                         ))}
                       </nav>
                     </>
