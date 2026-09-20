@@ -5,10 +5,12 @@ import { MobileNav } from "./MobileNav";
 import { BackToTop } from "./BackToTop";
 import { CompareBar } from "@/components/product/CompareBar";
 import { useLocation } from "wouter";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 
 export function RootLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const isAdmin = location.startsWith("/admin");
+  useScrollToTop();
 
   if (isAdmin) {
     return <div className="min-h-[100dvh] w-full" dir="rtl">{children}</div>;
