@@ -10,8 +10,9 @@ import { Separator } from "@/components/ui/separator";
 import { useCartSession, useSetCartData } from "@/lib/cart";
 import { apiErrorMessage, imageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck, Heart } from "lucide-react";
+import { ShoppingBag, Star, Minus, Plus, Package, Shield, Truck, Heart, Scale } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
+import { useCompare, MAX_COMPARE } from "@/lib/compare";
 import { StockNotifyForm } from "@/components/product/StockNotifyForm";
 import { VariantPicker, useVariantSelection } from "@/components/product/VariantPicker";
 import { useSEO } from "@/hooks/useSEO";
@@ -88,6 +89,7 @@ export default function ProductPage() {
   const createReview = useCreateReview();
   const setCart = useSetCartData();
   const wishlist = useWishlist();
+  const compare = useCompare();
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -174,6 +176,21 @@ export default function ProductPage() {
             {product.categoryName && <span className="text-sm text-muted-foreground font-medium">{product.categoryName}</span>}
             <div className="flex items-start justify-between gap-3">
               <h1 className="text-2xl md:text-3xl font-black text-foreground leading-tight">{product.nameFa}</h1>
+              <div className="flex gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="icon"
+                className={`shrink-0 rounded-full ${compare.has(product.id) ? "text-primary border-primary/40" : "text-muted-foreground"}`}
+                aria-label={compare.has(product.id) ? "حذف از مقایسه" : "افزودن به مقایسه"}
+                aria-pressed={compare.has(product.id)}
+                onClick={() => {
+                  if (!compare.toggle(product.id)) {
+                    toast({ title: "فهرست مقایسه پر است", description: `حداکثر ${MAX_COMPARE.toLocaleString("fa-IR")} کالا قابل مقایسه است.`, variant: "destructive" });
+                  }
+                }}
+              >
+                <Scale className="w-5 h-5" />
+              </Button>
               <Button
                 variant="outline"
                 size="icon"
@@ -185,6 +202,7 @@ export default function ProductPage() {
               >
                 <Heart className={`w-5 h-5 ${wishlist.isSaved(product.id) ? "fill-current" : ""}`} />
               </Button>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">

@@ -22,6 +22,7 @@ import ProductPage from "@/pages/product";
 import Cart from "@/pages/cart";
 import Checkout from "@/pages/checkout";
 import Wishlist from "@/pages/wishlist";
+import Compare from "@/pages/compare";
 import Track from "@/pages/track";
 import Login from "@/pages/login";
 import Profile from "@/pages/profile";
@@ -147,6 +148,7 @@ function AppRouter() {
         <Route path="/cart" component={Cart} />
         <Route path="/checkout" component={Checkout} />
         <Route path="/wishlist" component={Wishlist} />
+        <Route path="/compare" component={Compare} />
         <Route path="/track" component={Track} />
         <Route path="/login" component={Login} />
         <Route path="/profile" component={Profile} />
